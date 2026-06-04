@@ -12,6 +12,8 @@ import Link from "next/link";
 import axios from "axios";
 import { selectuser } from "@/Feature/Userslice";
 import { useSelector } from "react-redux";
+import { Application } from "../../types";
+import { toast } from "react-toastify";
 const Applications = [
   {
     _id: "1",
@@ -38,7 +40,7 @@ const Applications = [
     status: "rejected",
   },
 ];
-const getStatusColor = (status: any) => {
+const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
     case "approved":
       return "bg-green-100 text-green-800";
@@ -59,22 +61,22 @@ const index = () => {
   //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=faces",
   // });
 
-  const [data, setdata] = useState<any>([]);
+  const [data, setdata] = useState<Application[]>([]);
   useEffect(() => {
     const fetchdata = async () => {
       try {
         const res = await axios.get("https://internshala-clone-y2p2.onrender.com/api/application");
         setdata(res.data);
       } catch (error) {
-        console.log(error);
+        toast.error("Failed to load applications");
       }
     };
     fetchdata();
   }, []);
   const userapplication = data.filter(
-    (app:any) => app.user?.name === user?.name
+    (app: Application) => app.user?.name === user?.name
   );
-  const filteredapplications = userapplication.filter((application:any) => {
+  const filteredapplications = userapplication.filter((application: Application) => {
     const searchmatch =
       application.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       application.category.toLowerCase().includes(searchTerm.toLowerCase());
@@ -185,7 +187,7 @@ const index = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredapplications.map((application:any) => (
+                {filteredapplications.map((application: Application) => (
                   <tr key={application._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">

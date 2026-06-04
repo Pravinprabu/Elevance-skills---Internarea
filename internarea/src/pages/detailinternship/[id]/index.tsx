@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { Internship } from "../../../types";
 // export const internships = [
 //   {
 //     _id: "1",
@@ -74,14 +75,14 @@ import { toast } from "react-toastify";
 const index = () => {
   const router = useRouter();
   const { id } = router.query;
-  const [internshipData,setinternship]=useState<any>([])
+  const [internshipData,setinternship]=useState<Internship | null>(null)
   useEffect(()=>{
     const fetchdata=async()=>{
       try {
         const res=await axios.get( `https://internshala-clone-y2p2.onrender.com/api/internship/${id}`)     
         setinternship(res.data)
       } catch (error) {
-        console.log(error)
+        toast.error("Failed to load data");
       }
     }
     fetchdata()
@@ -119,7 +120,6 @@ const index = () => {
       toast.success("Application submit successfully")
       router.push('/internship')
     } catch (error) {
-      console.error(error)
       toast.error("Failed to submit application")
     }
   }

@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { Job } from "../../types";
+import { toast } from "react-toastify";
 
 const index = () => {
   // const filteredJobs = [
@@ -113,7 +115,7 @@ const index = () => {
   //     numberOfopning: "1",
   //   },
   // ];
-  const [filteredjob, setfilteredjobs] = useState<any>([]);
+  const [filteredjob, setfilteredjobs] = useState<Job[]>([]);
   const [isFiltervisible, setisFiltervisible] = useState(false);
   const [filter, setfilters] = useState({
     category: "",
@@ -123,7 +125,7 @@ const index = () => {
     salary: 50,
     experience: "",
   });
-  const [filteredJobs,setjob]=useState<any>([])
+  const [filteredJobs,setjob]=useState<Job[]>([])
   useEffect(()=>{
     const fetchdata=async()=>{
       try {
@@ -131,13 +133,13 @@ const index = () => {
         setjob(res.data)
         setfilteredjobs(res.data)
       } catch (error) {
-        console.log(error)
+        toast.error("Failed to load data");
       }
     }
     fetchdata()
   },[])
   useEffect(() => {
-    const filtered = filteredJobs.filter((job:any) => {
+    const filtered = filteredJobs.filter((job: Job) => {
       const matchesCategory = job.category
         .toLowerCase()
         .includes(filter.category.toLowerCase());
@@ -148,7 +150,7 @@ const index = () => {
     });
     setfilteredjobs(filtered);
   }, [filter, filteredJobs]);
-  const handlefilterchange = (e: any) => {
+  const handlefilterchange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setfilters((prev) => ({
       ...prev,
@@ -289,7 +291,7 @@ const index = () => {
               </p>
             </div>
             <div className="space-y-4">
-              {filteredjob.map((job: any) => (
+              {filteredjob.map((job: Job) => (
                 <div
                   key={job._id}
                   className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"

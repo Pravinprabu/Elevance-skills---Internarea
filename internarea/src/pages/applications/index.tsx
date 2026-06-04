@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { Application } from "../../types";
 import { toast } from "react-toastify";
 // const Applications = [
 //   {
@@ -37,7 +38,7 @@ import { toast } from "react-toastify";
 //     status: "rejected",
 //   },
 // ];
-const getStatusColor = (status: any) => {
+const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
     case "approved":
       return "bg-green-100 text-green-800";
@@ -50,20 +51,20 @@ const getStatusColor = (status: any) => {
 const index = () => {
   const [searchTerm, setsearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
-  const [data, setdata] = useState<any>([]);
+  const [data, setdata] = useState<Application[]>([]);
   useEffect(() => {
     const fetchdata = async () => {
       try {
         const res = await axios.get("https://internshala-clone-y2p2.onrender.com/api/application");
         setdata(res.data);
       } catch (error) {
-        console.log(error);
+        toast.error("Failed to load applications");
       }
     };
     fetchdata();
   }, []);
   // console.log(data);
-  const filteredapplications = data.filter((application: any) => {
+  const filteredapplications = data.filter((application: Application) => {
     const searchmatch =
       application.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       application.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,19 +72,18 @@ const index = () => {
     if (filter === "all") return searchmatch;
     return searchmatch && application.status.toLowerCase() === filter;
   });
-  const handleacceptandreject = async (id: any, action: any) => {
+  const handleacceptandreject = async (id: string, action: string) => {
     try {
       const res = await axios.put(
         `https://internshala-clone-y2p2.onrender.com/api/application/${id}`,
         { action }
       );
-      const updateappliacrtion = data.map((app: any) =>
+      const updatedApplications = data.map((app: Application) =>
         app._id === id ? res.data.data : app
       );
-      setdata(updateappliacrtion);
+      setdata(updatedApplications);
       toast.success("updated successfully");
     } catch (error) {
-      console.log(error);
       toast.error("error updating");
     }
   };
@@ -196,7 +196,7 @@ const index = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredapplications.map((application: any) => (
+                {filteredapplications.map((application: Application) => (
                   <tr key={application._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">

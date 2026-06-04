@@ -2,12 +2,14 @@ import axios from "axios";
 import { Building2, Calendar, FileText, Loader2, User } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { Application } from "../../../types";
+import { toast } from "react-toastify";
 
 const index = () => {
   const router = useRouter();
   const { id } = router.query;
   const [loading, setloading] = useState(false);
-  const [data, setdata] = useState<any>([]);
+  const [data, setdata] = useState<Application | any>(null);
   useEffect(() => {
     const fetchdata = async () => {
       try {
@@ -15,10 +17,9 @@ const index = () => {
         const res = await axios.get(
           `https://internshala-clone-y2p2.onrender.com/api/application/${id}`
         );
-        console.log(res.data);
         setdata(res.data);
       } catch (error) {
-        console.log(error);
+        toast.error("Failed to load application details");
       } finally {
         setloading(false);
       }
@@ -34,6 +35,13 @@ const index = () => {
         <span className="ml-2 text-gray-600">
           Loading application details...
         </span>
+      </div>
+    );
+  }
+  if (!data && !loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-gray-600">Application not found</span>
       </div>
     );
   }
