@@ -30,7 +30,7 @@ const index = () => {
   });
   const router = useRouter();
   const [isloading, setisloading] = useState(false);
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -51,7 +51,6 @@ const index = () => {
       toast.success("job posted successfuly");
       router.push("/adminpanel");
     } catch (error) {
-      console.log(error);
       toast.error("error posting job");
     } finally {
       setisloading(false);

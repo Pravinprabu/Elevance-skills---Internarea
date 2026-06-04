@@ -16,6 +16,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { selectuser } from "@/Feature/Userslice";
+import { Job } from "../../../types";
 // const filteredJobs = [
 //     {
 //       _id: "101",
@@ -120,14 +121,14 @@ const index = () => {
   const user=useSelector(selectuser)
   const router = useRouter();
   const { id } = router.query;
-  const [jobdata, setjob] = useState<any>([]);
+  const [jobdata, setjob] = useState<Job | null>(null);
   useEffect(() => {
     const fetchdata = async () => {
       try {
         const res = await axios.get(`https://internshala-clone-y2p2.onrender.com/api/job/${id}`);
         setjob(res.data);
       } catch (error) {
-        console.log(error);
+        toast.error("Failed to load data");
       }
     };
     fetchdata();
@@ -168,7 +169,6 @@ const index = () => {
       toast.success("Application submit successfully");
       router.push("/job");
     } catch (error) {
-      console.error(error);
       toast.error("Failed to submit application");
     }
   };

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Job, Internship } from "../types";
+import { toast } from "react-toastify";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -113,8 +115,8 @@ export default function SvgSlider() {
     { number: "21Mn+", label: "active students" },
     { number: "600K+", label: "learners" },
   ];
-  const [internships, setinternship] = useState<any>([]);
-  const [jobs, setjob] = useState<any>([]);
+  const [internships, setinternship] = useState<Internship[]>([]);
+  const [jobs, setjob] = useState<Job[]>([]);
   useEffect(() => {
     const fetchdata = async () => {
       try {
@@ -125,17 +127,17 @@ export default function SvgSlider() {
         setinternship(internshipres.data);
         setjob(jobres.data);
       } catch (error) {
-        console.log(error);
+        toast.error("Failed to load data");
       }
     };
     fetchdata();
   }, []);
   const [selectedCategory, setSelectedCategory] = useState("");
   const filteredInternships = internships.filter(
-    (item: any) => !selectedCategory || item.category === selectedCategory
+    (item: Internship) => !selectedCategory || item.category === selectedCategory
   );
   const filteredJobs = jobs.filter(
-    (item: any) => !selectedCategory || item.category === selectedCategory
+    (item: Job) => !selectedCategory || item.category === selectedCategory
   );
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -265,7 +267,7 @@ export default function SvgSlider() {
       </div>
       {/* INternship grid   */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-        {filteredInternships.map((internship: any, index: any) => (
+        {filteredInternships.map((internship: Internship, index: number) => (
           <div
             key={index}
             className="bg-white rounded-lg shadow-md p-6 transition-transform hover:transform hover:scale-105"
@@ -297,7 +299,7 @@ export default function SvgSlider() {
                 Internship
               </span>
               <Link
-                href={`/detailiternship/${internship._id}`}
+                href={`/detailinternship/${internship._id}`}
                 className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
               >
                 View details
@@ -311,7 +313,7 @@ export default function SvgSlider() {
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest Jobs</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {filteredJobs.map((job: any, index: any) => (
+          {filteredJobs.map((job: Job, index: number) => (
             <div
               key={index}
               className="bg-white rounded-lg shadow-md p-6 transition-transform hover:transform hover:scale-105"

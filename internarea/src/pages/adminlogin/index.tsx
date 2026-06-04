@@ -11,7 +11,7 @@ const index = () => {
   });
   const router = useRouter();
   const [isloading, setisloading] = useState(false);
-  const handlechange = (e: any) => {
+  const handlechange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setformadata((prev) => ({
       ...prev,
@@ -33,7 +33,6 @@ const index = () => {
       toast.success("logged in successfuly");
       router.push("/adminpanel");
     } catch (error) {
-      console.log(error);
       toast.error("Invalid credentials");
     } finally {
       setisloading(false);

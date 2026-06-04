@@ -19,7 +19,6 @@ const Navbar = () => {
       await signInWithPopup(auth, provider);
       toast.success("logged in successfully");
     } catch (error) {
-      console.error(error);
       toast.error("login failed");
     }
     // setuser({

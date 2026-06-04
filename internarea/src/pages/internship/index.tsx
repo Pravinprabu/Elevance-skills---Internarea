@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { Internship } from "../../types";
+import { toast } from "react-toastify";
 // const internshipData = [
 //   {
 //     _id: "1",
@@ -45,7 +47,7 @@ import React, { useEffect, useState } from "react";
 //   },
 // ];
 const index = () => {
-  const [filteredInternships, setfilteredInternships] = useState<any>([]);
+  const [filteredInternships, setfilteredInternships] = useState<Internship[]>([]);
   const [isFiltervisible, setisFiltervisible] = useState(false);
   const [filter, setfilters] = useState({
     category: "",
@@ -54,7 +56,7 @@ const index = () => {
     partTime: false,
     stipend: 50,
   });
-  const [internshipData,setinternship]=useState<any>([])
+  const [internshipData,setinternship]=useState<Internship[]>([])
   useEffect(()=>{
     const fetchdata=async()=>{
       try {
@@ -62,13 +64,13 @@ const index = () => {
         setinternship(res.data)
         setfilteredInternships(res.data)
       } catch (error) {
-        console.log(error)
+        toast.error("Failed to load data");
       }
     }
     fetchdata()
   },[])
   useEffect(() => {
-    const filtered = internshipData.filter((internship:any) => {
+    const filtered = internshipData.filter((internship: Internship) => {
       const matchesCategory = internship.category
         .toLowerCase()
         .includes(filter.category.toLowerCase());
@@ -79,7 +81,7 @@ const index = () => {
     });
     setfilteredInternships(filtered);
   }, [filter, internshipData]);
-  const handlefilterchange = (e: any) => {
+  const handlefilterchange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setfilters((prev) => ({
       ...prev,
@@ -206,7 +208,7 @@ const index = () => {
               </p>
             </div>
             <div className="space-y-4">
-              {filteredInternships.map((internship: any) => (
+              {filteredInternships.map((internship: Internship) => (
                 <div
                   key={internship._id}
                   className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
@@ -254,7 +256,7 @@ const index = () => {
                       </div>
                     </div>
                     <Link
-                      href={`/detailiternship/${internship._id}`}
+                      href={`/detailinternship/${internship._id}`}
                       className="text-blue-600 hover:text-blue-700 font-medium"
                     >
                       View Details
