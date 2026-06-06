@@ -111,10 +111,10 @@ const Navbar = () => {
                     </svg>
                     <span className="text-gray-700">Continue with google</span>
                   </button>
-                  {/* <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
                     {" "}
                     <Link href={"/"}>Register</Link>
-                  </button> */}
+                  </button>
                   <a
                     href="/adminlogin"
                     className="text-gray-600 hover:text-gray-800"
