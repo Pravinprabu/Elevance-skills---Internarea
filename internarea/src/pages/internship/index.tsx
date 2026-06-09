@@ -60,6 +60,8 @@ const index = () => {
   useEffect(()=>{
     const fetchdata=async()=>{
       try {
+
+        //need to check the api link
         const res=await axios.get( "https://internshala-clone-y2p2.onrender.com/api/internship")     
         setinternship(res.data)
         setfilteredInternships(res.data)

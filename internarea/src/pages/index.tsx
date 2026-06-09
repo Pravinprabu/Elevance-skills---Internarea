@@ -120,6 +120,8 @@ export default function SvgSlider() {
   useEffect(() => {
     const fetchdata = async () => {
       try {
+
+        //need to check the api link
         const [internshipres, jobres] = await Promise.all([
           axios.get("https://internshala-clone-y2p2.onrender.com/api/internship"),
           axios.get("https://internshala-clone-y2p2.onrender.com/api/job"),

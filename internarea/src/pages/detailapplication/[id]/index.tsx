@@ -14,6 +14,8 @@ const index = () => {
     const fetchdata = async () => {
       try {
         setloading(true);
+
+        //need to check the api link
         const res = await axios.get(
           `https://internshala-clone-y2p2.onrender.com/api/application/${id}`
         );

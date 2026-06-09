@@ -78,6 +78,8 @@ const index = () => {
   const [internshipData,setinternship]=useState<Internship | null>(null)
   useEffect(()=>{
     const fetchdata=async()=>{
+
+      //need to check the api link
       try {
         const res=await axios.get( `https://internshala-clone-y2p2.onrender.com/api/internship/${id}`)     
         setinternship(res.data)
