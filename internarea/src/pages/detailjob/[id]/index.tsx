@@ -127,7 +127,7 @@ const index = () => {
       try {
 
         //need to check the api link
-        const res = await axios.get(`https://internshala-clone-y2p2.onrender.com/api/job/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/job/${id}`);
         setjob(res.data);
       } catch (error) {
         toast.error("Failed to load data");
@@ -165,7 +165,7 @@ const index = () => {
         availability,
       };
       await axios.post(
-        "https://internshala-clone-y2p2.onrender.com/api/application",
+        "http://localhost:5000/api/application",
         applicationdata
       );
       toast.success("Application submit successfully");
