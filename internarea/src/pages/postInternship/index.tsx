@@ -10,7 +10,7 @@ import {
   DollarSign,
   Calendar,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import axios from "axios";
 import { toast } from "react-toastify";
 const index = () => {
