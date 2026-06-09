@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Applicationipschema = new mongoose.Schema({
   company: String,
+  body: String,
   category: String,
   coverLetter: String,
   user: Object,

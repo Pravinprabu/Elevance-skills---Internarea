@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const data = await Job.find();
-    res.json(data).status(200);
+    res.status(200).json(data);
   } catch (error) {
     console.log(error);
     res.status(404).json({ error: "internal server error" });
@@ -41,7 +41,7 @@ router.get("/:id", async (req, res) => {
     if (!data) {
       res.status(404).json({ error: "Jobs not found" });
     }
-    res.json(data).status(200);
+    res.status(200).json(data);
   } catch (error) {
     console.log(error);
     res.status(404).json({ error: "internal server error" });

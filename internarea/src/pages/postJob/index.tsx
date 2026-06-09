@@ -49,7 +49,7 @@ const index = () => {
       setisloading(true);
 
       //need to check the api link
-      const res = await axios.post("https://internshala-clone-y2p2.onrender.com/api/job", formData);
+      const res = await axios.post("http://localhost:5000/api/job", formData);
       toast.success("job posted successfuly");
       router.push("/adminpanel");
     } catch (error) {

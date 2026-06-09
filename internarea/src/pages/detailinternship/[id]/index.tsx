@@ -81,7 +81,7 @@ const index = () => {
 
       //need to check the api link
       try {
-        const res=await axios.get( `https://internshala-clone-y2p2.onrender.com/api/internship/${id}`)     
+        const res=await axios.get( `http://localhost:5000/api/internship/${id}`)     
         setinternship(res.data)
       } catch (error) {
         toast.error("Failed to load data");
@@ -118,7 +118,7 @@ const index = () => {
         Application:id,
         availability
       }
-      await axios.post("https://internshala-clone-y2p2.onrender.com/api/application",applicationdata)
+      await axios.post("http://localhost:5000/api/application",applicationdata)
       toast.success("Application submit successfully")
       router.push('/internship')
     } catch (error) {
