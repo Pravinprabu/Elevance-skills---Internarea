@@ -57,7 +57,7 @@ const index = () => {
       try {
 
         //need to check api link 
-        const res = await axios.get("http://localhost:5000/api/application");
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/application`);
         setdata(res.data);
       } catch (error) {
         toast.error("Failed to load applications");
@@ -77,7 +77,7 @@ const index = () => {
   const handleacceptandreject = async (id: string, action: string) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/application/${id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/application/${id}`,
         { action }
       );
       const updatedApplications = data.map((app: Application) =>

@@ -28,7 +28,7 @@ const index = () => {
       setisloading(true);
       const res = await axios.post(
         //need to check the api link
-        "http://localhost:5000/api/admin/adminlogin",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/adminlogin`,
         formadata
       );
       toast.success("logged in successfuly");

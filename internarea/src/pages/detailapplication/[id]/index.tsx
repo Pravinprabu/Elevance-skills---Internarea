@@ -17,7 +17,7 @@ const index = () => {
 
         //need to check the api link
         const res = await axios.get(
-          `http://localhost:5000/api/application/${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/application/${id}`
         );
         setdata(res.data);
       } catch (error) {

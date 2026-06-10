@@ -49,7 +49,7 @@ const index = () => {
       setisloading(true);
 
       //need to check the api link
-      const res = await axios.post("http://localhost:5000/api/internship", formData);
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/internship`, formData);
       toast.success("job posted successfuly");
       router.push("/adminpanel");
     } catch (error) {

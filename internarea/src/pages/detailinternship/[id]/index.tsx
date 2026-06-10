@@ -81,7 +81,7 @@ const index = () => {
 
       //need to check the api link
       try {
-        const res=await axios.get( `http://localhost:5000/api/internship/${id}`)     
+        const res=await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/api/internship/${id}`)     
         setinternship(res.data)
       } catch (error) {
         toast.error("Failed to load data");
@@ -118,7 +118,7 @@ const index = () => {
         Application:id,
         availability
       }
-      await axios.post("http://localhost:5000/api/application",applicationdata)
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/application`,applicationdata)
       toast.success("Application submit successfully")
       router.push('/internship')
     } catch (error) {
