@@ -131,7 +131,7 @@ const index = () => {
       try {
 
         //need to check the api link
-        const res=await axios.get( "http://localhost:5000/api/job")     
+        const res=await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/api/job`)     
         setjob(res.data)
         setfilteredjobs(res.data)
       } catch (error) {
@@ -143,11 +143,11 @@ const index = () => {
   useEffect(() => {
     const filtered = filteredJobs.filter((job: Job) => {
       const matchesCategory = job.category
-        .toLowerCase()
-        .includes(filter.category.toLowerCase());
+        ? job.category.toLowerCase().includes(filter.category.toLowerCase())
+        : false;
       const matchesLocation = job.location
-        .toLowerCase()
-        .includes(filter.location.toLowerCase());
+        ? job.location.toLowerCase().includes(filter.location.toLowerCase())
+        : false;
       return matchesCategory && matchesLocation;
     });
     setfilteredjobs(filtered);

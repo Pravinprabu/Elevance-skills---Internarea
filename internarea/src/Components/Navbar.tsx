@@ -5,8 +5,8 @@ import { auth, provider } from "../firebase/firebase";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
-import { selectuser } from "@/Feature/Userslice";
+import { useSelector, useDispatch } from "react-redux";
+import { selectuser, login, logout as logoutAction } from "@/Feature/Userslice";
 interface User {
   name: string;
   email: string;
@@ -14,9 +14,17 @@ interface User {
 }
 const Navbar = () => {
   const user = useSelector(selectuser);
+  const dispatch = useDispatch();
   const handlelogin = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      const res = await signInWithPopup(auth, provider);
+      dispatch(
+        login({
+          name: res.user.displayName,
+          email: res.user.email,
+          photo: res.user.photoURL,
+        })
+      );
       toast.success("logged in successfully");
     } catch (error) {
       toast.error("login failed");
@@ -30,6 +38,7 @@ const Navbar = () => {
   };
   const handlelogout = () => {
     signOut(auth);
+    dispatch(logoutAction());
   };
   return (
     <div className="relative">
@@ -111,10 +120,11 @@ const Navbar = () => {
                     </svg>
                     <span className="text-gray-700">Continue with google</span>
                   </button>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
-                    {" "}
-                    <Link href={"/"}>Register</Link>
-                  </button>
+                  <Link href={"/register"}>
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+                      Register
+                    </button>
+                  </Link>
                   <a
                     href="/adminlogin"
                     className="text-gray-600 hover:text-gray-800"

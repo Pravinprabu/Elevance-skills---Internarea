@@ -62,7 +62,7 @@ const index = () => {
       try {
 
         //need to check the api link
-        const res=await axios.get( "http://localhost:5000/api/internship")     
+        const res=await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/api/internship`)     
         setinternship(res.data)
         setfilteredInternships(res.data)
       } catch (error) {
@@ -74,11 +74,11 @@ const index = () => {
   useEffect(() => {
     const filtered = internshipData.filter((internship: Internship) => {
       const matchesCategory = internship.category
-        .toLowerCase()
-        .includes(filter.category.toLowerCase());
+        ? internship.category.toLowerCase().includes(filter.category.toLowerCase())
+        : false;
       const matchesLocation = internship.location
-        .toLowerCase()
-        .includes(filter.location.toLowerCase());
+        ? internship.location.toLowerCase().includes(filter.location.toLowerCase())
+        : false;
       return matchesCategory && matchesLocation;
     });
     setfilteredInternships(filtered);

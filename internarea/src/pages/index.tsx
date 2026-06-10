@@ -123,8 +123,8 @@ export default function SvgSlider() {
 
         //need to check the api link
         const [internshipres, jobres] = await Promise.all([
-          axios.get("http://localhost:5000/api/internship"),
-          axios.get("http://localhost:5000/api/job"),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/internship`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/job`),
         ]);
         setinternship(internshipres.data);
         setjob(jobres.data);
