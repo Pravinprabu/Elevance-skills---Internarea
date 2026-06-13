@@ -4,6 +4,7 @@ const Applicationipschema = new mongoose.Schema({
   body: String,
   category: String,
   coverLetter: String,
+  resume: String,
   user: Object,
   createdAt: {
     type: Date,

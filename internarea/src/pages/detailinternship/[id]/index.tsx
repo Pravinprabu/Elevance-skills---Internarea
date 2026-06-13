@@ -92,6 +92,7 @@ const index = () => {
   const [availability, setAvailability] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
+  const [resume, setResume] = useState<File | null>(null);
   const user=useSelector(selectuser)
   if (!internshipData) {
     return (
@@ -109,11 +110,27 @@ const index = () => {
       toast.error("please select your availability")
       return
     }
+    if(!resume){
+      toast.error("please upload your resume (PDF)")
+      return
+    }
     try {
+      // Convert resume to base64
+      const getBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = error => reject(error);
+        });
+      };
+      const resumeBase64 = await getBase64(resume);
+
       const applicationdata={
         category:internshipData.category,
         company:internshipData.company,
         coverLetter:coverLetter,
+        resume: resumeBase64,
         user:user,
         Application:id,
         availability
@@ -234,9 +251,44 @@ const index = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Your Resume
                 </h3>
-                <p className="text-gray-600">
-                  Your current resume will be submitted with the application
-                </p>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    id="resume-upload"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        setResume(e.target.files[0]);
+                      }
+                    }}
+                  />
+                  <label htmlFor="resume-upload" className="cursor-pointer text-center w-full">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <div className="mt-4 flex text-sm text-gray-600 justify-center">
+                      <span className="relative rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                        Upload a file
+                      </span>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      PDF up to 5MB
+                    </p>
+                  </label>
+                </div>
+                {resume && (
+                  <div className="mt-4 flex items-center justify-between p-3 bg-blue-50 text-blue-700 rounded-lg border border-blue-100">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg>
+                      <span className="truncate max-w-[200px] sm:max-w-[300px]">{resume.name}</span>
+                    </div>
+                    <button onClick={() => setResume(null)} className="text-blue-700 hover:text-blue-900 focus:outline-none">
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                )}
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">

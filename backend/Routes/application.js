@@ -7,6 +7,7 @@ router.post("/", async (req, res) => {
     company: req.body.company,
     category: req.body.category,
     coverLetter: req.body.coverLetter,
+    resume: req.body.resume,
     user: req.body.user,
     Application: req.body.Application,
     body: req.body.body,
