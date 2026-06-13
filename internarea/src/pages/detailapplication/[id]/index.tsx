@@ -129,6 +129,28 @@ const index = () => {
                   </p>
                 </div>
               </div>
+
+              {data.resume && (
+                <div className="mt-8 border-t pt-8">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <FileText className="w-5 h-5 text-blue-600 mr-2" />
+                      <h2 className="text-sm font-medium text-gray-500">
+                        Applicant Resume
+                      </h2>
+                    </div>
+                    <a
+                      href={data.resume}
+                      download="resume.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors"
+                    >
+                      View Resume
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
