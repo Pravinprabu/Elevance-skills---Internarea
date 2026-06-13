@@ -27,7 +27,8 @@ const Navbar = () => {
       );
       toast.success("logged in successfully");
     } catch (error) {
-      toast.error("login failed");
+      console.error("Login Error details:", error);
+      toast.error("login failed: " + error.message);
     }
     // setuser({
     //   name: "Rahul",

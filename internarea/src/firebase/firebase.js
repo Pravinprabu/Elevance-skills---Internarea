@@ -1,20 +1,21 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBMourQQ1wnBmEU-CjxP_VCzdORmFQNp5s",
-  authDomain: "internarea-cf9d6.firebaseapp.com",
-  projectId: "internarea-cf9d6",
-  storageBucket: "internarea-cf9d6.firebasestorage.app",
-  messagingSenderId: "870936711573",
-  appId: "1:870936711573:web:4eed6c187efdeabd3be69c",
-  measurementId: "G-MCCBBPH0GX"
+  apiKey: "AIzaSyD4RF_X1028QYSUa4egmFGBWo2seHOyE-g",
+  authDomain: "intern-area-d478f.firebaseapp.com",
+  projectId: "intern-area-d478f",
+  storageBucket: "intern-area-d478f.firebasestorage.app",
+  messagingSenderId: "744456749293",
+  appId: "1:744456749293:web:37454a39cda5be3f138ce4",
+  measurementId: "G-DHGTJEKJNH"
 };
 
 // Initialize Firebase
