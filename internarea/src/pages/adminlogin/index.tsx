@@ -3,13 +3,16 @@ import { User, Lock } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { login } from "@/Feature/Userslice";
 
 const index = () => {
   const [formadata, setformadata] = useState({
-    username: "",
+    email: "",
     password: "",
   });
   const router = useRouter();
+  const dispatch = useDispatch();
   const [isloading, setisloading] = useState(false);
   const handlechange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -20,17 +23,30 @@ const index = () => {
   };
   const handlesubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formadata.username || !formadata.password) {
+    if (!formadata.email || !formadata.password) {
       toast.error("Please fill in all detials");
       return;
     }
     try {
       setisloading(true);
       const res = await axios.post(
-        //need to check the api link
         `${process.env.NEXT_PUBLIC_API_URL}/api/admin/adminlogin`,
         formadata
       );
+      dispatch(
+        login({
+          uid: res.data.user._id,
+          name: res.data.user.name,
+          email: res.data.user.email,
+          role: res.data.user.role,
+        })
+      );
+      localStorage.setItem("adminUser", JSON.stringify({
+        uid: res.data.user._id,
+        name: res.data.user.name,
+        email: res.data.user.email,
+        role: res.data.user.role,
+      }));
       toast.success("logged in successfuly");
       router.push("/adminpanel");
     } catch (error) {
@@ -54,24 +70,24 @@ const index = () => {
           <form className="space-y-6" onSubmit={handlesubmit}>
             <div>
               <label
-                htmlFor="username"
+                htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
-                Username
+                Email
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="username"
-                  name="username"
-                  type="text"
+                  id="email"
+                  name="email"
+                  type="email"
                   required
-                  value={formadata.username}
+                  value={formadata.email}
                   onChange={handlechange}
                   className="block w-full text-black pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your username"
+                  placeholder="Enter your email"
                 />
               </div>
             </div>

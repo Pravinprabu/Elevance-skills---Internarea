@@ -1,4 +1,5 @@
 import Footer from "@/Components/Fotter";
+import axios from "axios";
 import Navbar from "@/Components/Navbar";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
@@ -13,21 +14,37 @@ export default function App({ Component, pageProps }: AppProps) {
   function AuthListener() {
     const dispatch = useDispatch();
     useEffect(() => {
-      auth.onAuthStateChanged((authuser) => {
+      // Check for custom admin session first
+      const adminSession = localStorage.getItem("adminUser");
+      if (adminSession) {
+        dispatch(login(JSON.parse(adminSession)));
+        return; // Skip Firebase auth check for admins
+      }
+
+      const unsubscribe = auth.onAuthStateChanged(async (authuser) => {
         if (authuser) {
-          dispatch(
-            login({
-              uid: authuser.uid,
-              photo: authuser.photoURL,
-              name: authuser.displayName,
-              email: authuser.email,
-              phoneNumber: authuser.phoneNumber,
-            })
-          );
+          try {
+            const res = await axios.get(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/user/${authuser.uid}`
+            );
+            dispatch(
+              login({
+                uid: authuser.uid,
+                name: authuser.displayName,
+                email: authuser.email,
+                photo: authuser.photoURL,
+                role: res.data.role,
+                plan: res.data.plan,
+              })
+            );
+          } catch {
+            dispatch(logout());
+          }
         } else {
           dispatch(logout());
         }
       });
+      return () => unsubscribe();
     }, [dispatch]);
     return null;
   }

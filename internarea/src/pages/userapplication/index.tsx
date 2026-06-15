@@ -9,6 +9,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import axios from "axios";
 import { selectuser } from "@/Feature/Userslice";
 import { useSelector } from "react-redux";
@@ -51,9 +52,16 @@ const getStatusColor = (status: string) => {
   }
 };
 const index = () => {
+  const user=useSelector(selectuser);
+  const router = useRouter();
+  useEffect(() => {
+    if (user === undefined) return;
+    if (!user) router.push("/register");
+    else if (user.role !== "jobseeker") router.push("/");
+  }, [user]);
+
   const [searchTerm, setsearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
-  const user=useSelector(selectuser)
   // const [user, setuser] = useState<any>({
   //   name: "Rahul",
   //   email: "xyz@gmail.com",
@@ -80,11 +88,11 @@ const index = () => {
   );
   const filteredapplications = userapplication.filter((application: Application) => {
     const searchmatch =
-      application.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      application.category.toLowerCase().includes(searchTerm.toLowerCase());
+      application.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      application.category?.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (filter === "all") return searchmatch;
-    return searchmatch && application.status.toLowerCase() === filter;
+    return searchmatch && application.status?.toLowerCase() === filter;
   });
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -214,10 +222,10 @@ const index = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {application.user.name}
+                            {application.user?.name || "Unknown Applicant"}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {application.user.email}
+                            {application.user?.email || "No email provided"}
                           </div>
                         </div>
                       </div>

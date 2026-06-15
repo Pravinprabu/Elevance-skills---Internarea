@@ -8,6 +8,8 @@ interface User {
   email: string;
   photo: string;
 }
+import { useRouter } from "next/router";
+
 const index = () => {
   // const [user, setuser] = useState<User | null>({
   //   name: "Rahul",
@@ -16,6 +18,11 @@ const index = () => {
   //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=faces",
   // });
   const user=useSelector(selectuser)
+  const router = useRouter();
+  React.useEffect(() => {
+    if (user === undefined) return;
+    if (!user) router.push("/register");
+  }, [user]);
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,7 +79,7 @@ const index = () => {
               {/* Actions */}
               <div className="flex justify-center pt-4">
                 <Link
-                  href="/userapplication"
+                  href={user?.role === "admin" || user?.role === "recruiter" ? "/applications" : "/userapplication"}
                   className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
                 >
                   View Applications

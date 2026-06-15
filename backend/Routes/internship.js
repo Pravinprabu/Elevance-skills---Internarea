@@ -16,6 +16,7 @@ router.post("/", async (req, res) => {
     stipend: req.body.stipend,
     startDate: req.body.startDate,
     additionalInfo: req.body.additionalInfo,
+    postedBy: req.body.postedBy,
   });
   await Internshipdata.save()
     .then((data) => {

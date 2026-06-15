@@ -12,6 +12,9 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Application } from "../../types";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { selectuser } from "@/Feature/Userslice";
+import { useRouter } from "next/router";
 // const Applications = [
 //   {
 //     _id: "1",
@@ -49,6 +52,14 @@ const getStatusColor = (status: string) => {
   }
 };
 const index = () => {
+  const user = useSelector(selectuser);
+  const router = useRouter();
+  useEffect(() => {
+    if (user === undefined) return;
+    if (!user) router.push("/register");
+    else if (user.role !== "admin" && user.role !== "recruiter") router.push("/");
+  }, [user]);
+  
   const [searchTerm, setsearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [data, setdata] = useState<Application[]>([]);
@@ -67,12 +78,17 @@ const index = () => {
   }, []);
   // console.log(data);
   const filteredapplications = data.filter((application: Application) => {
+    // Only show applications for their jobs (for both admin and recruiter)
+    if ((user?.role === "recruiter" || user?.role === "admin") && application.jobOwner !== user.uid) {
+      return false;
+    }
+
     const searchmatch =
-      application.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      application.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      application.user.name.toLowerCase().includes(searchTerm.toLowerCase());
+      application.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      application.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      application.user?.name?.toLowerCase().includes(searchTerm.toLowerCase());
     if (filter === "all") return searchmatch;
-    return searchmatch && application.status.toLowerCase() === filter;
+    return searchmatch && application.status?.toLowerCase() === filter;
   });
   const handleacceptandreject = async (id: string, action: string) => {
     try {
@@ -223,10 +239,10 @@ const index = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {application.user.name}
+                            {application.user?.name || "Unknown Applicant"}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {application.user.email}
+                            {application.user?.email || "No email provided"}
                           </div>
                         </div>
                       </div>

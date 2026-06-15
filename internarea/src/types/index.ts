@@ -23,6 +23,7 @@ export interface Job {
   numberOfOpening?: string;
   startDate?: string;
   Experience?: string;
+  postedBy?: string;
 }
 
 export interface Internship {
@@ -42,6 +43,7 @@ export interface Internship {
   additionalInfo?: string;
   numberOfOpening?: string;
   startDate?: string;
+  postedBy?: string;
 }
 
 export interface Application {
@@ -52,4 +54,5 @@ export interface Application {
   status: string;
   createdAt: string;
   applicationId?: string;
+  jobOwner?: string;
 }

@@ -13,7 +13,17 @@ import {
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { selectuser } from "@/Feature/Userslice";
 const index = () => {
+  const user = useSelector(selectuser);
+  const router = useRouter();
+  React.useEffect(() => {
+    if (user === undefined) return;
+    if (!user) router.push("/register");
+    else if (user.role !== "admin" && user.role !== "recruiter") router.push("/");
+  }, [user]);
+
   const [formData, setFormData] = useState({
     title: "",
     company: "",
@@ -28,7 +38,6 @@ const index = () => {
     startDate: "",
     AdditionalInfo: "",
   });
-  const router = useRouter();
   const [isloading, setisloading] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -48,8 +57,7 @@ const index = () => {
     try {
       setisloading(true);
 
-      //need to check the api link
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/job`, formData);
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/job`, { ...formData, postedBy: user.uid });
       toast.success("job posted successfuly");
       router.push("/adminpanel");
     } catch (error) {
