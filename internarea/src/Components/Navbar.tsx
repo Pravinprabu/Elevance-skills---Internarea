@@ -39,6 +39,7 @@ const Navbar = () => {
   };
   const handlelogout = () => {
     signOut(auth);
+    localStorage.removeItem("adminUser");
     dispatch(logoutAction());
   };
   return (
@@ -72,6 +73,33 @@ const Navbar = () => {
                   className="ml-2 bg-transparent focus:outline-none text-sm w-48"
                 />
               </div>
+
+              {user && (user.role === "recruiter" || user.role === "admin") && (
+                <>
+                  <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <Link href={"/applications"}>
+                      <span>View Applications</span>
+                    </Link>
+                  </button>
+                  <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <Link href={"/postJob"}>
+                      <span>Post Job</span>
+                    </Link>
+                  </button>
+                  <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <Link href={"/postInternship"}>
+                      <span>Post Internship</span>
+                    </Link>
+                  </button>
+                </>
+              )}
+              {user && user.role === "jobseeker" && (
+                <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                  <Link href={"/userapplication"}>
+                    <span>My Applications</span>
+                  </Link>
+                </button>
+              )}
             </div>
 
             {/* Auth Buttons */}

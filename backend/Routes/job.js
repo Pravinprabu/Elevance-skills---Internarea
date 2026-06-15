@@ -17,6 +17,7 @@ router.post("/", async (req, res) => {
     AdditionalInfo: req.body.AdditionalInfo,
     CTC: req.body.CTC,
     StartDate: req.body.StartDate,
+    postedBy: req.body.postedBy,
   });
   await jobdata.save().then((data)=>{
     res.send(data)

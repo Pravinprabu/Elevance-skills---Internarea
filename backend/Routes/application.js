@@ -11,6 +11,7 @@ router.post("/", async (req, res) => {
     user: req.body.user,
     Application: req.body.Application,
     body: req.body.body,
+    jobOwner: req.body.jobOwner,
   });
   await applicationipdata
     .save()

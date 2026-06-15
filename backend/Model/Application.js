@@ -6,6 +6,7 @@ const Applicationipschema = new mongoose.Schema({
   coverLetter: String,
   resume: String,
   user: Object,
+  jobOwner: String,
   createdAt: {
     type: Date,
     default: Date.now,

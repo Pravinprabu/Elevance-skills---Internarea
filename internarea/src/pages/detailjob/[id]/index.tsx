@@ -177,8 +177,8 @@ const index = () => {
         company: jobdata.company,
         coverLetter: coverLetter,
         resume: resumeBase64,
-        user: user,
         Application: id,
+        jobOwner: jobdata.postedBy,
         availability,
       };
       await axios.post(
@@ -263,12 +263,14 @@ const index = () => {
         </div>
         {/* Apply Button */}
         <div className="p-6 flex justify-center">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-150"
-          >
-            Apply Now
-          </button>
+          {(!user || user.role === "jobseeker") && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-150"
+            >
+              Apply Now
+            </button>
+          )}
         </div>
       </div>
       {/* Apply Modal */}

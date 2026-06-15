@@ -8,7 +8,19 @@ import {
   Settings
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSelector } from 'react-redux';
+import { selectuser } from '@/Feature/Userslice';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+
 const index = () => {
+    const user = useSelector(selectuser);
+    const router = useRouter();
+    useEffect(() => {
+      if (user === undefined) return;
+      if (!user) router.push("/register");
+      else if (user.role !== "admin") router.push("/");
+    }, [user]);
     const stats = [
         { label: 'Total Applications', value: '2,345', change: '+12%', changeType: 'positive' },
         { label: 'Active Jobs', value: '45', change: '+3%', changeType: 'positive' },
