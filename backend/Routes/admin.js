@@ -22,7 +22,7 @@ router.post("/adminregister", async (req, res) => {
     const existingAdmin = await User.findOne({ email });
     if (existingAdmin) return res.status(400).json({ error: "Email already exists" });
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword, role: "admin" });
+    const user = new User({ name, email, password: hashedPassword, role: "admin", uid: `admin_${email}` });
     await user.save();
     res.status(201).json({ success: true, user });
   } catch (error) {
