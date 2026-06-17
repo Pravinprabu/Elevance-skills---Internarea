@@ -10,6 +10,16 @@ interface User {
 }
 import { useRouter } from "next/router";
 
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['common'])),
+    },
+  };
+}
+
+
 const index = () => {
   // const [user, setuser] = useState<User | null>({
   //   name: "Rahul",

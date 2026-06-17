@@ -7,12 +7,16 @@ import { signInWithPopup, signOut } from "firebase/auth";
 import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { selectuser, login, logout as logoutAction } from "@/Feature/Userslice";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
+
 interface User {
   name: string;
   email: string;
   photo: string;
 }
 const Navbar = () => {
+  const { t } = useTranslation('common');
   const user = useSelector(selectuser);
   const dispatch = useDispatch();
   const handlelogin = async () => {
@@ -26,7 +30,7 @@ const Navbar = () => {
         })
       );
       toast.success("logged in successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login Error details:", error);
       toast.error("login failed: " + error.message);
     }
@@ -57,12 +61,12 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-8">
               <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                 <Link href={"/internship"}>
-                  <span>Internships</span>
+                  <span>{t("Internships", "Internships")}</span>
                 </Link>
               </button>
               <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                 <Link href={"/job"}>
-                  <span>Jobs</span>
+                  <span>{t("Jobs", "Jobs")}</span>
                 </Link>
               </button>
               <div className="flex items-center bg-gray-100 rounded-full px-4 py-2">
@@ -78,17 +82,17 @@ const Navbar = () => {
                 <>
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                     <Link href={"/applications"}>
-                      <span>View Applications</span>
+                      <span>{t("Applications", "View Applications")}</span>
                     </Link>
                   </button>
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                     <Link href={"/postJob"}>
-                      <span>Post Job</span>
+                      <span>{t("Post Job", "Post Job")}</span>
                     </Link>
                   </button>
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                     <Link href={"/postInternship"}>
-                      <span>Post Internship</span>
+                      <span>{t("Post Internship", "Post Internship")}</span>
                     </Link>
                   </button>
                 </>
@@ -96,7 +100,7 @@ const Navbar = () => {
               {user && user.role === "jobseeker" && (
                 <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                   <Link href={"/userapplication"}>
-                    <span>My Applications</span>
+                    <span>{t("Applications", "My Applications")}</span>
                   </Link>
                 </button>
               )}
@@ -120,7 +124,7 @@ const Navbar = () => {
                     className="flex items-center w-full px-4 py-2  text-gray-700  hover:bg-gray-200 rounded-lg"
                     onClick={handlelogout}
                   >
-                    Logout
+                    {t("Logout", "Logout")}
                   </button>
                 </div>
               ) : (
@@ -147,21 +151,22 @@ const Navbar = () => {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span className="text-gray-700">Continue with google</span>
+                    <span className="text-gray-700">{t("Continue with google", "Continue with google")}</span>
                   </button>
                   <Link href={"/register"}>
                     <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
-                      Login
+                      {t("Login", "Login")}
                     </button>
                   </Link>
                   <a
                     href="/adminlogin"
                     className="text-gray-600 hover:text-gray-800"
                   >
-                    Admin
+                    {t("Admin", "Admin")}
                   </a>
                 </>
               )}
+              <LanguageSwitcher />
             </div>
           </div>{" "}
         </div>

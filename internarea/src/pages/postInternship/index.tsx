@@ -15,6 +15,16 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { selectuser } from "@/Feature/Userslice";
+
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['common'])),
+    },
+  };
+}
+
 const index = () => {
   const user = useSelector(selectuser);
   const router = useRouter();

@@ -11,6 +11,7 @@ router.use("/internship", intern);
 router.use("/job", job);
 router.use("/application", application);
 router.use("/user", user);
+router.use("/language", require("./language"));
 
 
 module.exports = router;
