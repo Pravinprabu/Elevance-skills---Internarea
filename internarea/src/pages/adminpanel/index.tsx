@@ -13,6 +13,16 @@ import { selectuser } from '@/Feature/Userslice';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['common'])),
+    },
+  };
+}
+
+
 const index = () => {
     const user = useSelector(selectuser);
     const router = useRouter();

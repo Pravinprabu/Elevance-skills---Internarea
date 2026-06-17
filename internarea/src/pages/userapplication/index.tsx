@@ -15,6 +15,16 @@ import { selectuser } from "@/Feature/Userslice";
 import { useSelector } from "react-redux";
 import { Application } from "../../types";
 import { toast } from "react-toastify";
+
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['common'])),
+    },
+  };
+}
+
 const Applications = [
   {
     _id: "1",

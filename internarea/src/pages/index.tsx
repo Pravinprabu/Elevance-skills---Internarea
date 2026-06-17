@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { serverSideTranslations } from "next-i18next/pages/serverSideTranslations";
 import { Job, Internship } from "../types";
 import { toast } from "react-toastify";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -16,7 +18,16 @@ import {
 import Link from "next/link";
 import axios from "axios";
 
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
+}
+
 export default function SvgSlider() {
+  const { t } = useTranslation('common');
   const categories = [
     "Big Brands",
     "Work From Home",
@@ -146,9 +157,9 @@ export default function SvgSlider() {
       {/* hero section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Make your dream career a reality
+          {t("Make your dream career a reality", "Make your dream career a reality")}
         </h1>
-        <p className="text-xl text-gray-600">Trending on InternArea 🔥</p>
+        <p className="text-xl text-gray-600">{t("Trending on InternArea 🔥", "Trending on InternArea 🔥")}</p>
       </div>
       {/* Swiper section */}
       <div className="mb-16">
@@ -298,13 +309,13 @@ export default function SvgSlider() {
             </div>
             <div className="flex items-center justify-between mt-6">
               <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                Internship
+                {t("Internship", "Internship")}
               </span>
               <Link
                 href={`/detailinternship/${internship._id}`}
                 className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
               >
-                View details
+                {t("View", "View details")}
                 <ChevronRight size={16} />
               </Link>
             </div>
@@ -344,13 +355,13 @@ export default function SvgSlider() {
               </div>
               <div className="flex items-center justify-between mt-6">
                 <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                  Jobs
+                  {t("Jobs", "Jobs")}
                 </span>
                 <Link
                   href={`/detailjob/${job._id}`}
                   className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
-                  View details
+                  {t("View", "View details")}
                   <ChevronRight size={16} />
                 </Link>
               </div>

@@ -15,6 +15,16 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Internship } from "../../../types";
+
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['common'])),
+    },
+  };
+}
+
 // export const internships = [
 //   {
 //     _id: "1",

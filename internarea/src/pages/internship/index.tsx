@@ -14,6 +14,16 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Internship } from "../../types";
 import { toast } from "react-toastify";
+
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['common'])),
+    },
+  };
+}
+
 // const internshipData = [
 //   {
 //     _id: "1",
