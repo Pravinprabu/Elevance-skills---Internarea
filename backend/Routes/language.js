@@ -35,12 +35,19 @@ router.post("/send-otp", async (req, res) => {
 
     // Send email
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: "Your OTP for Language Change",
-        text: `Your OTP for changing the language to French is: ${otp}. It is valid for 2 minutes.`,
-      });
+      console.log(`[MAILER] Preparing to send email to ${email} via ${process.env.EMAIL_USER}`);
+      try {
+        const info = await transporter.sendMail({
+          from: `"Internarea Support" <${process.env.EMAIL_USER}>`, 
+          to: email, // Recipient is dynamic
+          subject: "Your OTP for Language Change",
+          text: `Your OTP for changing the language to French is: ${otp}. It is valid for 2 minutes.`,
+        });
+        console.log(`[MAILER] Email sent successfully: ${info.messageId}`);
+      } catch (sendErr) {
+        console.error("[MAILER] Error during sendMail execution:", sendErr);
+        throw sendErr; // re-throw to be caught by the outer catch
+      }
     } else {
       console.log(`[DEV MODE] OTP for ${email}: ${otp}`);
     }
