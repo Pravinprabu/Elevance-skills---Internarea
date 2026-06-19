@@ -29,14 +29,14 @@ export async function getStaticProps({ locale }: { locale: string }) {
 export default function SvgSlider() {
   const { t } = useTranslation('common');
   const categories = [
-    "Big Brands",
-    "Work From Home",
-    "Part-time",
-    "MBA",
-    "Engineering",
-    "Media",
-    "Design",
-    "Data Science",
+    t("Big Brands"),
+    t("Work From Home"),
+    t("Part-time"),
+    t("MBA"),
+    t("Engineering"),
+    t("Media"),
+    t("Design"),
+    t("Data Science"),
   ];
   // const internships = [
   //   {
@@ -100,31 +100,31 @@ export default function SvgSlider() {
   const slides = [
     {
       pattern: "pattern-1",
-      title: "Start Your Career Journey",
+      title: t("Start Your Career Journey"),
       bgColor: "bg-indigo-600",
     },
     {
       pattern: "pattern-2",
-      title: "Learn From The Best",
+      title: t("Learn From The Best"),
       bgColor: "bg-blue-600",
     },
     {
       pattern: "pattern-3",
-      title: "Grow Your Skills",
+      title: t("Grow Your Skills"),
       bgColor: "bg-purple-600",
     },
     {
       pattern: "pattern-4",
-      title: "Connect With Top Companies",
+      title: t("Connect With Top Companies"),
       bgColor: "bg-teal-600",
     },
   ];
 
   const stats = [
-    { number: "300K+", label: "companies hiring" },
-    { number: "10K+", label: "new openings everyday" },
-    { number: "21Mn+", label: "active students" },
-    { number: "600K+", label: "learners" },
+    { number: "300K+", label: t("companies hiring") },
+    { number: "10K+", label: t("new openings everyday") },
+    { number: "21Mn+", label: t("active students") },
+    { number: "600K+", label: t("learners") },
   ];
   const [internships, setinternship] = useState<Internship[]>([]);
   const [jobs, setjob] = useState<Job[]>([]);
@@ -157,9 +157,9 @@ export default function SvgSlider() {
       {/* hero section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          {t("Make your dream career a reality", "Make your dream career a reality")}
+          {t("Make your dream career a reality")}
         </h1>
-        <p className="text-xl text-gray-600">{t("Trending on InternArea 🔥", "Trending on InternArea 🔥")}</p>
+        <p className="text-xl text-gray-600">{t("Trending on InternArea")} 🔥</p>
       </div>
       {/* Swiper section */}
       <div className="mb-16">
@@ -259,10 +259,10 @@ export default function SvgSlider() {
       {/* Category section */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          Latest internships on Intern Area
+          {t("Latest internships on Intern Area")}
         </h2>
         <div className="flex flex-wrap gap-4">
-          <span className="text-gray-700 font-medium">POPULAR CATEGORIES:</span>
+          <span className="text-gray-700 font-medium">{t("POPULAR CATEGORIES:")}</span>
           {categories.map((category) => (
             <button
               key={category}
@@ -287,7 +287,7 @@ export default function SvgSlider() {
           >
             <div className="flex items-center gap-2 text-blue-600 mb-4">
               <ArrowUpRight size={20} />
-              <span className="font-medium">Actively Hiring</span>
+              <span className="font-medium">{t("Actively Hiring")}</span>
             </div>
             <h3 className="text-lg font-semibold mb-2 text-gray-800">
               {internship.title}
@@ -309,13 +309,13 @@ export default function SvgSlider() {
             </div>
             <div className="flex items-center justify-between mt-6">
               <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                {t("Internship", "Internship")}
+                {t("Internship")}
               </span>
               <Link
                 href={`/detailinternship/${internship._id}`}
                 className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
               >
-                {t("View", "View details")}
+                {t("View")}
                 <ChevronRight size={16} />
               </Link>
             </div>
@@ -324,7 +324,7 @@ export default function SvgSlider() {
       </div>
       {/* Jobs grid   */}
       <div className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest Jobs</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">{t("Latest Jobs")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {filteredJobs.map((job: Job, index: number) => (
             <div
@@ -333,7 +333,7 @@ export default function SvgSlider() {
             >
               <div className="flex items-center gap-2 text-blue-600 mb-4">
                 <ArrowUpRight size={20} />
-                <span className="font-medium">Actively Hiring</span>
+                <span className="font-medium">{t("Actively Hiring")}</span>
               </div>
               <h3 className="text-lg font-semibold mb-2 text-gray-800">
                 {job.title}
@@ -355,13 +355,13 @@ export default function SvgSlider() {
               </div>
               <div className="flex items-center justify-between mt-6">
                 <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                  {t("Jobs", "Jobs")}
+                  {t("Jobs")}
                 </span>
                 <Link
                   href={`/detailjob/${job._id}`}
                   className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
-                  {t("View", "View details")}
+                  {t("View")}
                   <ChevronRight size={16} />
                 </Link>
               </div>

@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'react-i18next';
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
@@ -24,6 +25,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
 
 
 const index = () => {
+    const { t } = useTranslation('common');
     const user = useSelector(selectuser);
     const router = useRouter();
     useEffect(() => {
@@ -87,9 +89,9 @@ const index = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t("Admin Dashboard")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Manage your jobs, internships, and applications
+          {t("Manage your jobs, internships, and applications")}
         </p>
       </div>
 
@@ -104,7 +106,7 @@ const index = () => {
               <div className="flex items-center">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-500 truncate">
-                    {stat.label}
+                    {t(stat.label)}
                   </p>
                   <p className="mt-1 text-3xl font-semibold text-gray-900">
                     {stat.value}
@@ -136,10 +138,10 @@ const index = () => {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-gray-900">
-                    {item.title}
+                    {t(item.title)}
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    {item.description}
+                    {t(item.description)}
                   </p>
                 </div>
               </div>

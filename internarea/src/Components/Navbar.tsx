@@ -73,7 +73,7 @@ const Navbar = () => {
                 <Search size={16} className="text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search opportunities..."
+                  placeholder={t("Search opportunities...") as string}
                   className="ml-2 bg-transparent focus:outline-none text-sm w-48"
                 />
               </div>

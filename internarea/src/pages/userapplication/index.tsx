@@ -17,6 +17,7 @@ import { Application } from "../../types";
 import { toast } from "react-toastify";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'react-i18next';
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
@@ -62,6 +63,7 @@ const getStatusColor = (status: string) => {
   }
 };
 const index = () => {
+  const { t } = useTranslation('common');
   const user=useSelector(selectuser);
   const router = useRouter();
   useEffect(() => {
@@ -110,9 +112,9 @@ const index = () => {
         <div className="bg-white rounded-lg shadow-sm">
           {/* Header */}
           <div className="border-b border-gray-200 px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">My Applications</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t("My Applications")}</h1>
             <p className="mt-1 text-sm text-gray-500">
-              Track and manage your job and intenrhsip applications
+              {t("Track and manage your job and internship applications")}
             </p>
           </div>
 
@@ -125,7 +127,7 @@ const index = () => {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setsearchTerm(e.target.value)}
-                    placeholder="Search by company, category, or applicant..."
+                    placeholder={t("Search by company, category, or applicant...") as string}
                     className="text-black w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <Mail className="absolute top-3 left-3 text-gray-400" />
@@ -140,7 +142,7 @@ const index = () => {
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  All
+                  {t("All")}
                 </button>
                 <button
                   onClick={() => setFilter("pending")}
@@ -150,7 +152,7 @@ const index = () => {
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  Pending
+                  {t("Pending")}
                 </button>
                 <button
                   onClick={() => setFilter("approved")}
@@ -160,7 +162,7 @@ const index = () => {
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  Approved
+                  {t("Approved")}
                 </button>
                 <button
                   onClick={() => setFilter("rejected")}
@@ -170,7 +172,7 @@ const index = () => {
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  Rejected
+                  {t("Rejected")}
                 </button>
               </div>
             </div>
@@ -184,25 +186,25 @@ const index = () => {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Company & Category
+                    {t("Company & Category")}
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Applicant
+                    {t("Applicant")}
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Applied Date
+                    {t("Applied Date")}
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Status
+                    {t("Status")}
                   </th>
                 </tr>
               </thead>
@@ -232,10 +234,10 @@ const index = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {application.user?.name || "Unknown Applicant"}
+                            {application.user?.name || t("Unknown Applicant")}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {application.user?.email || "No email provided"}
+                            {application.user?.email || t("No email provided")}
                           </div>
                         </div>
                       </div>

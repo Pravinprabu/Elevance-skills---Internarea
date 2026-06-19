@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { Internship } from "../../../types";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'react-i18next';
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
@@ -83,6 +84,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
 // ];
 
 const index = () => {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const { id } = router.query;
   const [internshipData,setinternship]=useState<Internship | null>(null)
@@ -160,7 +162,7 @@ const index = () => {
         <div className="p-6 border-b">
           <div className="flex items-center space-x-2 text-blue-600 mb-4">
             <ArrowUpRight className="h-5 w-5" />
-            <span className="font-medium">Actively Hiring</span>
+            <span className="font-medium">{t("Actively Hiring")}</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {internshipData.title}
@@ -183,21 +185,21 @@ const index = () => {
           <div className="mt-4 flex items-center space-x-2">
             <Clock className="h-4 w-4 text-green-500" />
             <span className="text-green-500 text-sm">
-              Posted on {internshipData.createdAt}
+              {t("Posted on ")} {internshipData.createdAt}
             </span>
           </div>
         </div>
         {/* Company Section */}
         <div className="p-6 border-b">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            About {internshipData.company}
+            {t("About ")} {internshipData.company}
           </h2>
           <div className="flex items-center space-x-2 mb-4">
             <a
               href="#"
               className="text-blue-600 hover:text-blue-700 flex items-center space-x-1"
             >
-              <span>Visit company website</span>
+              <span>{t("Visit company website")}</span>
               <ExternalLink className="h-4 w-4" />
             </a>
           </div>
@@ -206,25 +208,25 @@ const index = () => {
         {/* Internship Details Section */}
         <div className="p-6 border-b">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            About the Internship
+            {t("About the Internship")}
           </h2>
           <p className="text-gray-600 mb-6">{internshipData.aboutInternship}</p>
 
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Who can apply
+            {t("Who can apply")}
           </h3>
           <p className="text-gray-600 mb-6">{internshipData.whoCanApply}</p>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Perks</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("Perks")}</h3>
           <p className="text-gray-600 mb-6">{internshipData.perks}</p>
 
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Additional Information
+            {t("Additional Information")}
           </h3>
           <p className="text-gray-600 mb-6">{internshipData.additionalInfo}</p>
 
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Number of Openings
+            {t("Number of Openings")}
           </h3>
           <p className="text-gray-600">{internshipData.numberOfOpening}</p>
         </div>
@@ -235,7 +237,7 @@ const index = () => {
               onClick={() => setIsModalOpen(true)}
               className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-150"
             >
-              Apply Now
+              {t("Apply Now")}
             </button>
           )}
         </div>
@@ -248,7 +250,7 @@ const index = () => {
             <div className="p-6 border-b">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Apply to {internshipData.company}
+                  {t("Apply to ")} {internshipData.company}
                 </h2>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -262,7 +264,7 @@ const index = () => {
               {/* Resume Section */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Your Resume
+                  {t("Your Resume")}
                 </h3>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
                   <input
@@ -282,12 +284,12 @@ const index = () => {
                     </svg>
                     <div className="mt-4 flex text-sm text-gray-600 justify-center">
                       <span className="relative rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                        Upload a file
+                        {t("Upload a file")}
                       </span>
-                      <p className="pl-1">or drag and drop</p>
+                      <p className="pl-1">{t("or drag and drop")}</p>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
-                      PDF up to 5MB
+                      {t("PDF up to 5MB")}
                     </p>
                   </label>
                 </div>
@@ -305,40 +307,40 @@ const index = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Cover Letter
+                  {t("Cover Letter")}
                 </h3>
                 <p className="text-gray-600 mb-2">
-                  Why should you be selected for this internship?
+                  {t("Why should you be selected for this internship?")}
                 </p>
                 <textarea
                   value={coverLetter}
                   onChange={(e) => setCoverLetter(e.target.value)}
                   className="w-full h-32 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 text-black"
-                  placeholder="Write your cover letter here..."
+                  placeholder={t("Write your cover letter here...") as string}
                 ></textarea>
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Your Availability
+                  {t("Your Availability")}
                 </h3>
                 <div className="space-y-3">
                   {[
-                    "Yes, I am available to join immediately",
-                    "No, I am currently on notice period",
-                    "No, I will have to serve notice period",
-                    "Other",
+                    t("Yes, I am available to join immediately"),
+                    t("No, I am currently on notice period"),
+                    t("No, I will have to serve notice period"),
+                    t("Other"),
                   ].map((option) => (
-                    <label key={option} className="flex items-center space-x-2">
+                    <label key={option as string} className="flex items-center space-x-2">
                       <input
                         type="radio"
                         name=""
                         id=""
-                        value={option}
+                        value={option as string}
                         checked={availability === option}
                         onChange={(e) => setAvailability(e.target.value)}
                         className="h-4 w-4 text-blue-600"
                       />
-                      <span className="text-gray-700">{option}</span>
+                      <span className="text-gray-700">{option as string}</span>
                     </label>
                   ))}
                 </div>
@@ -346,14 +348,14 @@ const index = () => {
               <div className="flex justify-end pt-4">
                 {user ? (
                   <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700" onClick={handlesubmitapplication}>
-                    Submit Application
+                    {t("Submit Application")}
                   </button>
                 ) : (
                   <Link
                     href={`/`}
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
                   >
-                    Sign up to apply
+                    {t("Sign up to apply")}
                   </Link>
                 )}
               </div>

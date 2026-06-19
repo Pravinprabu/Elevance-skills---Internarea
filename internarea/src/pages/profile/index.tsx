@@ -11,6 +11,7 @@ interface User {
 import { useRouter } from "next/router";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'react-i18next';
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
@@ -21,6 +22,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
 
 
 const index = () => {
+  const { t } = useTranslation('common');
   // const [user, setuser] = useState<User | null>({
   //   name: "Rahul",
   //   email: "xyz@gmail.com",
@@ -73,7 +75,7 @@ const index = () => {
                     0
                   </span>
                   <p className="text-blue-600 text-sm mt-1">
-                    Active Applications
+                    {t("Active Applications")}
                   </p>
                 </div>
                 <div className="bg-green-50 rounded-lg p-4 text-center">
@@ -81,7 +83,7 @@ const index = () => {
                     0
                   </span>
                   <p className="text-green-600 text-sm mt-1">
-                    Accepted Applications
+                    {t("Accepted Applications")}
                   </p>
                 </div>
               </div>
@@ -92,7 +94,7 @@ const index = () => {
                   href={user?.role === "admin" || user?.role === "recruiter" ? "/applications" : "/userapplication"}
                   className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
                 >
-                  View Applications
+                  {t("View Applications")}
                   <ExternalLink className="ml-2 h-4 w-4" />
                 </Link>
               </div>

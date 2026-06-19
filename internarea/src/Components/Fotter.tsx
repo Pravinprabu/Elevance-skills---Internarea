@@ -31,7 +31,7 @@ export default function Footer() {
             <Twitter className="w-6 h-6 hover:text-blue-400 cursor-pointer" />
             <Instagram className="w-6 h-6 hover:text-pink-400 cursor-pointer" />
           </div>
-          <p className="mt-4 sm:mt-0 text-sm text-gray-400">© Copyright 2025. All Rights Reserved.</p>
+          <p className="mt-4 sm:mt-0 text-sm text-gray-400">{t("© Copyright 2025. All Rights Reserved.")}</p>
         </div>
       </div>
     </footer>
@@ -39,6 +39,7 @@ export default function Footer() {
 }
 
 function FooterSection({ title, items, links }:any) {
+  const { t } = useTranslation('common');
   return (
     <div>
       <h3 className="text-sm font-bold text-gray-300">{title}</h3>
@@ -46,11 +47,11 @@ function FooterSection({ title, items, links }:any) {
         {items.map((item:any, index:any) =>
           links ? (
             <a key={index} href="/" className="text-gray-400 hover:text-blue-400 hover:underline">
-              {item}
+              {t(item)}
             </a>
           ) : (
             <p key={index} className="text-gray-400 hover:text-blue-400 hover:underline cursor-pointer">
-              {item}
+              {t(item)}
             </p>
           )
         )}
