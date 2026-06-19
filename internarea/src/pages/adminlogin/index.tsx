@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { login } from "@/Feature/Userslice";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { useTranslation } from 'react-i18next';
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
@@ -17,6 +18,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
 
 
 const index = () => {
+  const { t } = useTranslation('common');
   const [formadata, setformadata] = useState({
     email: "",
     password: "",
@@ -69,10 +71,10 @@ const index = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Admin Login
+          {t("Admin Login")}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Access the admin dashboard to manage internships and applications
+          {t("Access the admin dashboard to manage internships and applications")}
         </p>
       </div>
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -83,7 +85,7 @@ const index = () => {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
-                Email
+                {t("Email")}
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -97,7 +99,7 @@ const index = () => {
                   value={formadata.email}
                   onChange={handlechange}
                   className="block w-full text-black pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your email"
+                  placeholder={t("Enter your email") as string}
                 />
               </div>
             </div>
@@ -106,7 +108,7 @@ const index = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700"
               >
-                Password
+                {t("Password")}
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -120,7 +122,7 @@ const index = () => {
                   value={formadata.password}
                   onChange={handlechange}
                   className="block w-full text-black pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your password"
+                  placeholder={t("Enter your password") as string}
                 />
               </div>
             </div>
@@ -133,10 +135,10 @@ const index = () => {
                 {isloading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
-                    Signing in...
+                    {t("Signing in...")}
                   </div>
                 ) : (
-                  " Sign in"
+                  t("Sign in")
                 )}
               </button>
             </div>
@@ -146,7 +148,7 @@ const index = () => {
               onClick={() => router.push("/adminregister")}
               className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              New admin register
+              {t("New admin register")}
             </button>
           </div>
         </div>
