@@ -54,8 +54,13 @@ const Register = () => {
       );
       toast.success("Registered successfully");
       router.push("/");
-    } catch (error) {
-      toast.error("Registration failed");
+    } catch (error: any) {
+      if (error?.response?.status === 403) {
+        toast.error(error.response.data.error);
+        await auth.signOut(); // undo the Firebase sign-in since we're blocking access
+      } else {
+        toast.error("Registration failed");
+      }
     }
   };
 
