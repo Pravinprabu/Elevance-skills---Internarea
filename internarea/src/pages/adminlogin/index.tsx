@@ -23,6 +23,8 @@ const index = () => {
     email: "",
     password: "",
   });
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [otp, setOtp] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
   const [isloading, setisloading] = useState(false);
@@ -39,12 +41,21 @@ const index = () => {
       toast.error("Please fill in all detials");
       return;
     }
+    if (otpRequired && !otp) {
+      toast.error("Please enter the OTP sent to your email");
+      return;
+    }
     try {
       setisloading(true);
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/admin/adminlogin`,
-        formadata
+        { ...formadata, otp: otpRequired ? otp : undefined }
       );
+      if (res.data.otpRequired) {
+        setOtpRequired(true);
+        toast.info("OTP sent to your email. Please enter it to continue.");
+        return;
+      }
       dispatch(
         login({
           uid: res.data.user._id,
@@ -61,8 +72,8 @@ const index = () => {
       }));
       toast.success("logged in successfuly");
       router.push("/adminpanel");
-    } catch (error) {
-      toast.error("Invalid credentials");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Invalid credentials");
     } finally {
       setisloading(false);
     }
@@ -126,6 +137,31 @@ const index = () => {
                 />
               </div>
             </div>
+            {otpRequired && (
+              <div>
+                <label
+                  htmlFor="otp"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {t("OTP")}
+                </label>
+                <div className="mt-1 relative rounded-md shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    id="otp"
+                    name="otp"
+                    type="text"
+                    required
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="block w-full text-black pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder={t("Enter OTP from email") as string}
+                  />
+                </div>
+              </div>
+            )}
             <div>
               <button
                 type="submit"
@@ -137,6 +173,8 @@ const index = () => {
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
                     {t("Signing in...")}
                   </div>
+                ) : otpRequired ? (
+                  t("Verify & Sign In")
                 ) : (
                   t("Sign in")
                 )}

@@ -1,8 +1,9 @@
 import { selectuser } from "@/Feature/Userslice";
 import { ExternalLink, Mail, User } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import axios from "axios";
 interface User {
   name: string;
   email: string;
@@ -31,9 +32,19 @@ const index = () => {
   // });
   const user=useSelector(selectuser)
   const router = useRouter();
-  React.useEffect(() => {
+  const [loginHistory, setLoginHistory] = useState<any[]>([]);
+
+  useEffect(() => {
     if (user === undefined) return;
-    if (!user) router.push("/register");
+    if (!user) {
+      router.push("/register");
+      return;
+    }
+    if (user?.uid) {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/user/${user.uid}/login-history`)
+        .then(res => setLoginHistory(res.data))
+        .catch(() => setLoginHistory([]));
+    }
   }, [user]);
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -99,6 +110,53 @@ const index = () => {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Login History */}
+        <div className="mt-8 bg-white rounded-2xl shadow-lg overflow-hidden p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">{t("Login History")}</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Time</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Browser</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OS</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {loginHistory.map((history, idx) => (
+                  <tr key={idx} className={history.status === "blocked" ? "bg-red-50" : ""}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {new Date(history.loginAt).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{history.browser}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{history.os}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{history.deviceType}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{history.ipAddress}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${history.status === "allowed" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                        {history.status}
+                      </span>
+                      {history.status === "blocked" && history.blockReason && (
+                        <div className="text-xs text-red-600 mt-1">{history.blockReason}</div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+                {loginHistory.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                      {t("No login history found.")}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

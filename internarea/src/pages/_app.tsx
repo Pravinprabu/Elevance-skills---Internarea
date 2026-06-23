@@ -39,7 +39,11 @@ function App({ Component, pageProps }: AppProps) {
                 plan: res.data.plan,
               })
             );
-          } catch {
+          } catch (error: any) {
+            if (error?.response?.status === 403) {
+              toast.error(error.response.data.error);
+              await auth.signOut();
+            }
             dispatch(logout());
           }
         } else {
