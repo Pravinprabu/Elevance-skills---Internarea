@@ -58,14 +58,14 @@ const index = () => {
       }
       dispatch(
         login({
-          uid: res.data.user._id,
+          uid: res.data.user.uid,
           name: res.data.user.name,
           email: res.data.user.email,
           role: res.data.user.role,
         })
       );
       localStorage.setItem("adminUser", JSON.stringify({
-        uid: res.data.user._id,
+        uid: res.data.user.uid,
         name: res.data.user.name,
         email: res.data.user.email,
         role: res.data.user.role,

@@ -8,6 +8,7 @@ import { Provider, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { auth } from "@/firebase/firebase";
 import { login, logout } from "@/Feature/Userslice";
+import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { appWithTranslation } from 'next-i18next/pages';
