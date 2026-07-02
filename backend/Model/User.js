@@ -15,6 +15,7 @@ const UserSchema = new mongoose.Schema({
     default: "free",
   },
   password: { type: String },   // bcrypt hash — only set for admin accounts
+  resume: { type: mongoose.Schema.Types.ObjectId, ref: "Resume", default: null },
   createdAt: {
     type: Date,
     default: Date.now,
