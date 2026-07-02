@@ -9,6 +9,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { selectuser, login, logout as logoutAction } from "@/Feature/Userslice";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 interface User {
   name: string;
@@ -19,27 +21,38 @@ const Navbar = () => {
   const { t } = useTranslation('common');
   const user = useSelector(selectuser);
   const dispatch = useDispatch();
+  const router = useRouter();
+
   const handlelogin = async () => {
     try {
       const res = await signInWithPopup(auth, provider);
+      const firebaseUser = res.user;
+
+      // Fetch full user record from database (includes role, plan)
+      const dbRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/user/${firebaseUser.uid}`
+      );
+
       dispatch(
         login({
-          name: res.user.displayName,
-          email: res.user.email,
-          photo: res.user.photoURL,
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName,
+          email: firebaseUser.email,
+          photo: firebaseUser.photoURL,
+          role: dbRes.data.role,
+          plan: dbRes.data.plan,
         })
       );
-      toast.success("logged in successfully");
+      toast.success("Logged in successfully");
     } catch (error: any) {
-      console.error("Login Error details:", error);
-      toast.error("login failed: " + error.message);
+      // If user doesn't exist in DB yet (never registered), redirect to register
+      if (error?.response?.status === 404) {
+        toast.error("Please register first to choose your role.");
+        router.push("/register");
+      } else {
+        toast.error("Login failed: " + error.message);
+      }
     }
-    // setuser({
-    //   name: "Rahul",
-    //   email: "xyz@gmail.com",
-    //   photo:
-    //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=faces",
-    // });
   };
   const handlelogout = () => {
     signOut(auth);
