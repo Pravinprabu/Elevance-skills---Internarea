@@ -78,6 +78,14 @@ const Navbar = () => {
                 />
               </div>
 
+              {user && (
+                <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                  <Link href={"/community"}>
+                    <span>{t("Community", "Community")}</span>
+                  </Link>
+                </button>
+              )}
+
               {user && (user.role === "recruiter" || user.role === "admin") && (
                 <>
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
@@ -98,11 +106,18 @@ const Navbar = () => {
                 </>
               )}
               {user && user.role === "jobseeker" && (
-                <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
-                  <Link href={"/userapplication"}>
-                    <span>{t("Applications", "My Applications")}</span>
-                  </Link>
-                </button>
+                <>
+                  <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <Link href={"/userapplication"}>
+                      <span>{t("Applications", "My Applications")}</span>
+                    </Link>
+                  </button>
+                  <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <Link href={"/resume-builder"}>
+                      <span>{t("Resume Builder", "Resume Builder")}</span>
+                    </Link>
+                  </button>
+                </>
               )}
             </div>
 
