@@ -3,7 +3,6 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { selectuser } from "@/Feature/Userslice";
 import { toast } from "react-toastify";
-import Navbar from "@/Components/Navbar";
 import { useRouter } from "next/router";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -158,7 +157,6 @@ export default function ResumeBuilder() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
       <div className="max-w-4xl mx-auto py-10 px-4">
         
         {/* Step Indicator */}

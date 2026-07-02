@@ -3,7 +3,6 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { selectuser } from "@/Feature/Userslice";
 import { toast } from "react-toastify";
-import Navbar from "@/Components/Navbar";
 
 export default function Community() {
   const user = useSelector(selectuser);
@@ -178,7 +177,6 @@ export default function Community() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
       <div className="max-w-6xl mx-auto py-8 px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Main Feed */}
         <div className="md:col-span-2 space-y-6">
