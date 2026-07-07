@@ -142,7 +142,7 @@ export default function ResumeBuilder() {
     const element = document.getElementById("resume-preview");
     if (!element) return;
     try {
-      const canvas = await html2canvas(element, { scale: 2 });
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const imgProps = pdf.getImageProperties(imgData);
@@ -150,8 +150,9 @@ export default function ResumeBuilder() {
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save(`${formData.name || 'Resume'}.pdf`);
-    } catch (e) {
-      toast.error("Failed to generate PDF.");
+    } catch (e: any) {
+      console.error("PDF Generation Error:", e);
+      toast.error(`PDF Error: ${e?.message || e}`);
     }
   };
 
@@ -297,18 +298,18 @@ export default function ResumeBuilder() {
 
       {/* Hidden PDF Preview Container */}
       {step === 4 && (
-        <div style={{ position: "absolute", left: "-9999px" }}>
-          <div id="resume-preview" className="bg-white p-10 w-[800px] min-h-[1130px] shadow-none text-black font-sans">
+        <div style={{ position: "absolute", top: 0, left: 0, opacity: 0, zIndex: -9999, pointerEvents: "none" }}>
+          <div id="resume-preview" className="p-10 w-[800px] min-h-[1130px] shadow-none font-sans" style={{ backgroundColor: "#ffffff", color: "#000000" }}>
             {/* Header Section */}
-            <div className="flex items-center space-x-6 border-b-2 border-gray-300 pb-6 mb-6">
+            <div className="flex items-center space-x-6 border-b-2 pb-6 mb-6" style={{ borderColor: "#d1d5db" }}>
               {formData.photo && (
-                <img src={formData.photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border-2 border-gray-200" />
+                <img src={formData.photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border-2" style={{ borderColor: "#e5e7eb" }} />
               )}
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 uppercase tracking-wide">{formData.name}</h1>
-                <div className="flex items-center space-x-4 mt-2 text-gray-600">
-                  <span className="flex items-center"><svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>{formData.email}</span>
-                  {formData.phone && <span className="flex items-center"><svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>{formData.phone}</span>}
+                <h1 className="text-4xl font-bold uppercase tracking-wide" style={{ color: "#111827" }}>{formData.name}</h1>
+                <div className="flex items-center space-x-4 mt-2" style={{ color: "#4b5563" }}>
+                  <span className="flex items-center"><svg width="16" height="16" className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>{formData.email}</span>
+                  {formData.phone && <span className="flex items-center"><svg width="16" height="16" className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>{formData.phone}</span>}
                 </div>
               </div>
             </div>
@@ -316,24 +317,24 @@ export default function ResumeBuilder() {
             {/* Summary */}
             {formData.summary && (
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-800 uppercase border-b border-gray-300 pb-1 mb-2">Professional Summary</h2>
-                <p className="text-gray-700 leading-relaxed text-sm">{formData.summary}</p>
+                <h2 className="text-lg font-bold uppercase border-b pb-1 mb-2" style={{ color: "#1f2937", borderColor: "#d1d5db" }}>Professional Summary</h2>
+                <p className="leading-relaxed text-sm" style={{ color: "#374151" }}>{formData.summary}</p>
               </div>
             )}
 
             {/* Experience */}
             {formData.experience.some(e => e.role || e.company) && (
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-800 uppercase border-b border-gray-300 pb-1 mb-3">Work Experience</h2>
+                <h2 className="text-lg font-bold uppercase border-b pb-1 mb-3" style={{ color: "#1f2937", borderColor: "#d1d5db" }}>Work Experience</h2>
                 <div className="space-y-4">
                   {formData.experience.filter(e => e.role || e.company).map((ex, i) => (
                     <div key={i}>
                       <div className="flex justify-between items-baseline mb-1">
-                        <h3 className="font-bold text-gray-900">{ex.role}</h3>
-                        <span className="text-sm font-medium text-gray-500">{ex.duration}</span>
+                        <h3 className="font-bold" style={{ color: "#111827" }}>{ex.role}</h3>
+                        <span className="text-sm font-medium" style={{ color: "#6b7280" }}>{ex.duration}</span>
                       </div>
-                      <div className="text-md font-medium text-blue-600 mb-1">{ex.company}</div>
-                      <p className="text-gray-700 text-sm">{ex.description}</p>
+                      <div className="text-md font-medium mb-1" style={{ color: "#2563eb" }}>{ex.company}</div>
+                      <p className="text-sm" style={{ color: "#374151" }}>{ex.description}</p>
                     </div>
                   ))}
                 </div>
@@ -343,15 +344,15 @@ export default function ResumeBuilder() {
             {/* Qualifications */}
             {formData.qualifications.some(q => q.degree || q.institution) && (
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-800 uppercase border-b border-gray-300 pb-1 mb-3">Education</h2>
+                <h2 className="text-lg font-bold uppercase border-b pb-1 mb-3" style={{ color: "#1f2937", borderColor: "#d1d5db" }}>Education</h2>
                 <div className="space-y-3">
                   {formData.qualifications.filter(q => q.degree || q.institution).map((q, i) => (
                     <div key={i}>
                       <div className="flex justify-between items-baseline">
-                        <h3 className="font-bold text-gray-900">{q.degree}</h3>
-                        <span className="text-sm font-medium text-gray-500">{q.year}</span>
+                        <h3 className="font-bold" style={{ color: "#111827" }}>{q.degree}</h3>
+                        <span className="text-sm font-medium" style={{ color: "#6b7280" }}>{q.year}</span>
                       </div>
-                      <div className="text-gray-700 text-sm">{q.institution}</div>
+                      <div className="text-sm" style={{ color: "#374151" }}>{q.institution}</div>
                     </div>
                   ))}
                 </div>
@@ -361,10 +362,10 @@ export default function ResumeBuilder() {
             {/* Skills */}
             {formData.skills && (
               <div>
-                <h2 className="text-lg font-bold text-gray-800 uppercase border-b border-gray-300 pb-1 mb-3">Skills</h2>
+                <h2 className="text-lg font-bold uppercase border-b pb-1 mb-3" style={{ color: "#1f2937", borderColor: "#d1d5db" }}>Skills</h2>
                 <div className="flex flex-wrap gap-2">
                   {formData.skills.split(",").map(s => s.trim()).filter(s => s).map((s, i) => (
-                    <span key={i} className="bg-gray-100 text-gray-800 px-3 py-1 rounded text-sm font-medium">{s}</span>
+                    <span key={i} className="px-3 py-1 rounded text-sm font-medium" style={{ backgroundColor: "#f3f4f6", color: "#1f2937" }}>{s}</span>
                   ))}
                 </div>
               </div>
