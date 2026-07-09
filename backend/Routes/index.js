@@ -14,5 +14,6 @@ router.use("/user", user);
 router.use("/language", require("./language"));
 router.use("/community", require("./community"));
 router.use("/resume", require("./resume"));
+router.use("/subscription", require("./subscription"));
 
 module.exports = router;

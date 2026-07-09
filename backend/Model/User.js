@@ -11,9 +11,12 @@ const UserSchema = new mongoose.Schema({
   },
   plan: {
     type: String,
-    enum: ["free", "premium"],
+    enum: ["free", "bronze", "silver", "gold", "premium"],
     default: "free",
   },
+  planExpiresAt: { type: Date, default: null },       // when the monthly plan expires
+  applicationCount: { type: Number, default: 0 },     // applications submitted this month
+  applicationCountResetAt: { type: Date, default: null }, // when the count was last reset
   password: { type: String },   // bcrypt hash — only set for admin accounts
   resume: { type: mongoose.Schema.Types.ObjectId, ref: "Resume", default: null },
   createdAt: {
