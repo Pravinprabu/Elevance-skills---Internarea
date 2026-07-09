@@ -1,26 +1,59 @@
 const express = require("express");
 const router = express.Router();
 const application = require("../Model/Application");
+const User = require("../Model/User");
 
 router.post("/", async (req, res) => {
-  const applicationipdata = new application({
-    company: req.body.company,
-    category: req.body.category,
-    coverLetter: req.body.coverLetter,
-    resume: req.body.resume,
-    user: req.body.user,
-    Application: req.body.Application,
-    body: req.body.body,
-    jobOwner: req.body.jobOwner,
-  });
-  await applicationipdata
-    .save()
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((error) => {
-      console.log(error);
+  try {
+    // Check plan limit if a uid is provided
+    const uid = req.body.user?.uid;
+    if (uid) {
+      const user = await User.findOne({ uid });
+      if (user && user.role === "jobseeker") {
+        const limits = { free: 1, bronze: 3, silver: 5, gold: Infinity };
+        const limit = limits[user.plan] || 1;
+
+        // Reset count if new month
+        const now = new Date();
+        const resetAt = user.applicationCountResetAt;
+        const monthPassed = !resetAt || (now.getMonth() !== resetAt.getMonth() || now.getFullYear() !== resetAt.getFullYear());
+        if (monthPassed) {
+          user.applicationCount = 0;
+          user.applicationCountResetAt = now;
+        }
+
+        const currentCount = user.applicationCount || 0;
+
+        if (limit !== Infinity && currentCount >= limit) {
+          return res.status(403).json({
+            error: `You have reached your ${user.plan} plan limit of ${limit} application(s) per month. Upgrade your plan to apply for more internships.`,
+            upgradeRequired: true,
+          });
+        }
+
+        // Increment count
+        user.applicationCount = currentCount + 1;
+        await user.save();
+      }
+    }
+
+    // Existing save logic — no changes needed below this point
+    const applicationipdata = new application({
+      company: req.body.company,
+      category: req.body.category,
+      coverLetter: req.body.coverLetter,
+      resume: req.body.resume,
+      user: req.body.user,
+      Application: req.body.Application,
+      body: req.body.body,
+      jobOwner: req.body.jobOwner,
     });
+    await applicationipdata.save();
+    res.send(applicationipdata);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to submit application" });
+  }
 });
 router.get("/", async (req, res) => {
   try {

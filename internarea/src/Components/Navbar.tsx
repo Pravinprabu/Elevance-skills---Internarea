@@ -129,6 +129,11 @@ const Navbar = () => {
                     </Link>
                   </button>
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <Link href={"/plans"}>
+                      <span>{t("Plans", "Plans")}</span>
+                    </Link>
+                  </button>
+                  <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                     <Link href={"/resume-builder"}>
                       <span>{t("Resume Builder", "Resume Builder")}</span>
                     </Link>

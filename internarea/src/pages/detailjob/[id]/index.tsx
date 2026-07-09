@@ -28,6 +28,13 @@ export async function getStaticProps({ locale }: { locale: string }) {
   };
 }
 
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+}
+
 // const filteredJobs = [
 //     {
 //       _id: "101",
@@ -152,6 +159,16 @@ const index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [resume, setResume] = useState<File | null>(null);
+  const [subStatus, setSubStatus] = useState<any>(null);
+
+  useEffect(() => {
+    if (user?.uid && user.role === "jobseeker") {
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/subscription/status/${user.uid}`)
+        .then(res => setSubStatus(res.data))
+        .catch(() => {});
+    }
+  }, [user]);
+
   if (!jobdata) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -189,6 +206,7 @@ const index = () => {
         company: jobdata.company,
         coverLetter: coverLetter,
         resume: resumeBase64,
+        user: user,
         Application: id,
         jobOwner: jobdata.postedBy,
         availability,
@@ -199,8 +217,14 @@ const index = () => {
       );
       toast.success("Application submit successfully");
       router.push("/job");
-    } catch (error) {
-      toast.error("Failed to submit application");
+    } catch (error: any) {
+      if (error?.response?.status === 403 && error?.response?.data?.upgradeRequired) {
+        toast.error(error.response.data.error);
+        setIsModalOpen(false);
+        router.push("/plans");
+      } else {
+        toast.error("Failed to submit application");
+      }
     }
   };
   return (
@@ -276,12 +300,39 @@ const index = () => {
         {/* Apply Button */}
         <div className="p-6 flex justify-center">
           {(!user || user.role === "jobseeker") && (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-150"
-            >
-              {t("Apply Now")}
-            </button>
+            <div className="text-center">
+              {subStatus && (
+                <p className="text-sm text-gray-500 mb-3">
+                  Plan: <span className="font-semibold capitalize">{subStatus.plan}</span> —
+                  {subStatus.applicationLimit === "Unlimited"
+                    ? " Unlimited applications"
+                    : ` ${subStatus.applicationCount} / ${subStatus.applicationLimit} applications used this month`}
+                </p>
+              )}
+              {subStatus && !subStatus.canApply ? (
+                <div className="space-y-2">
+                  <p className="text-red-600 text-sm font-medium">
+                    You have reached your monthly application limit.
+                  </p>
+                  <button
+                    onClick={() => router.push("/plans")}
+                    className="bg-orange-500 text-white px-8 py-3 rounded-lg hover:bg-orange-600 transition duration-150"
+                  >
+                    Upgrade Plan to Apply More
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (!user) { router.push("/register"); return; }
+                    setIsModalOpen(true);
+                  }}
+                  className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-150"
+                >
+                  {t("Apply Now")}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
