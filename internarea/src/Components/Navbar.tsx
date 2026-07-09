@@ -30,7 +30,7 @@ const Navbar = () => {
 
       // Fetch full user record from database (includes role, plan)
       const dbRes = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/user/${firebaseUser.uid}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/user/${firebaseUser.uid}?email=${firebaseUser.email}`
       );
 
       dispatch(
@@ -38,15 +38,18 @@ const Navbar = () => {
           uid: firebaseUser.uid,
           name: firebaseUser.displayName,
           email: firebaseUser.email,
-          photo: firebaseUser.photoURL,
+          photo: firebaseUser.photoURL || dbRes.data.photo,
           role: dbRes.data.role,
           plan: dbRes.data.plan,
         })
       );
       toast.success("Logged in successfully");
     } catch (error: any) {
-      // If user doesn't exist in DB yet (never registered), redirect to register
-      if (error?.response?.status === 404) {
+      if (error?.response?.status === 403) {
+        toast.error(error.response.data.error);
+        router.push("/adminlogin");
+      } else if (error?.response?.status === 404) {
+        // If user doesn't exist in DB yet (never registered), redirect to register
         toast.error("Please register first to choose your role.");
         router.push("/register");
       } else {
@@ -142,8 +145,8 @@ const Navbar = () => {
                     {" "}
                     <Link href={"/profile"}>
                       <img
-                        src={user.photo}
-                        alt=""
+                        src={user.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=EBF4FF&color=1D4ED8`}
+                        alt="Profile"
                         className="w-8 h-8 rounded-full"
                       />
                     </Link>
