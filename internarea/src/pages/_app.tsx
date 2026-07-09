@@ -28,14 +28,14 @@ function App({ Component, pageProps }: AppProps) {
         if (authuser) {
           try {
             const res = await axios.get(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/user/${authuser.uid}`
+              `${process.env.NEXT_PUBLIC_API_URL}/api/user/${authuser.uid}?email=${authuser.email}`
             );
             dispatch(
               login({
                 uid: authuser.uid,
                 name: authuser.displayName,
                 email: authuser.email,
-                photo: authuser.photoURL,
+                photo: authuser.photoURL || res.data.photo,
                 role: res.data.role,
                 plan: res.data.plan,
               })
