@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { 
   Briefcase, 
   Mail, 
@@ -11,7 +12,7 @@ import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { selectuser } from '@/Feature/Userslice';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
@@ -28,17 +29,33 @@ const index = () => {
     const { t } = useTranslation('common');
     const user = useSelector(selectuser);
     const router = useRouter();
+
+    const [stats, setStats] = useState([
+      { label: 'Total Applications', value: '...', change: '', changeType: 'positive' },
+      { label: 'Active Jobs', value: '...', change: '', changeType: 'positive' },
+      { label: 'Active Internships', value: '...', change: '', changeType: 'positive' },
+      { label: 'Conversion Rate', value: '...', change: '', changeType: 'positive' },
+    ]);
+
     useEffect(() => {
       if (user === undefined) return;
-      if (!user) router.push("/register");
-      else if (user.role !== "admin") router.push("/");
+      if (!user) { router.push("/register"); return; }
+      if (user.role !== "admin") { router.push("/"); return; }
+  
+      // Fetch real stats
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/stats`)
+        .then(res => {
+          setStats([
+            { label: 'Total Applications', value: String(res.data.totalApplications), change: '', changeType: 'positive' },
+            { label: 'Active Jobs', value: String(res.data.activeJobs), change: '', changeType: 'positive' },
+            { label: 'Active Internships', value: String(res.data.activeInternships), change: '', changeType: 'positive' },
+            { label: 'Conversion Rate', value: res.data.conversionRate, change: '', changeType: 'positive' },
+          ]);
+        })
+        .catch(() => {
+          // Keep loading state on error — don't show fake numbers
+        });
     }, [user]);
-    const stats = [
-        { label: 'Total Applications', value: '2,345', change: '+12%', changeType: 'positive' },
-        { label: 'Active Jobs', value: '45', change: '+3%', changeType: 'positive' },
-        { label: 'Active Internships', value: '89', change: '+24%', changeType: 'positive' },
-        { label: 'Conversion Rate', value: '5.25%', change: '-1.3%', changeType: 'negative' },
-      ];
     
       const menuItems = [
         {
@@ -63,24 +80,10 @@ const index = () => {
           color: 'bg-purple-600',
         },
         {
-          title: 'Manage Users',
-          description: 'View and manage user accounts',
-          icon: Users,
-          link: '/users',
-          color: 'bg-orange-600',
-        },
-        {
-          title: 'Analytics',
-          description: 'View detailed reports and statistics',
-          icon: BarChart,
-          link: '/analytics',
-          color: 'bg-red-600',
-        },
-        {
           title: 'Settings',
-          description: 'Configure system preferences',
+          description: 'View your profile and change your password',
           icon: Settings,
-          link: '/settings',
+          link: '/admin-settings',
           color: 'bg-gray-600',
         },
       ];
@@ -111,11 +114,6 @@ const index = () => {
                   <p className="mt-1 text-3xl font-semibold text-gray-900">
                     {stat.value}
                   </p>
-                </div>
-                <div className={`${
-                  stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stat.change}
                 </div>
               </div>
             </div>

@@ -181,6 +181,15 @@ const index = () => {
               </button>
             </div>
           </form>
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => router.push("/admin-forgot-password")}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Forgot Password?
+            </button>
+          </div>
           <div className="mt-6">
             <button
               onClick={() => router.push("/adminregister")}
