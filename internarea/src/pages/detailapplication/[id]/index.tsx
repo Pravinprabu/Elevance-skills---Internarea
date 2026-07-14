@@ -14,6 +14,13 @@ export async function getStaticProps({ locale }: { locale: string }) {
   };
 }
 
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+}
+
 
 const index = () => {
   const router = useRouter();
