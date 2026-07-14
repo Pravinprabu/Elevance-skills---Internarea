@@ -12,6 +12,7 @@ const port = process.env.PORT || 5000;
 const allowedOrigins = [
   "http://localhost:3000",
   "https://your-vercel-app-url.vercel.app",   // replace with actual Vercel URL after deployment
+  "https://elevance-skills-internarea.onrender.com"
 ];
 
 app.use(cors({
