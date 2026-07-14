@@ -6,18 +6,11 @@ import { Application } from "../../../types";
 import { toast } from "react-toastify";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
-export async function getStaticProps({ locale }: { locale: string }) {
+export async function getServerSideProps({ locale }: { locale: string }) {
   return {
     props: {
       ...(await serverSideTranslations(locale || 'en', ['common'])),
     },
-  };
-}
-
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: 'blocking',
   };
 }
 
