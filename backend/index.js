@@ -7,9 +7,23 @@ const { connect } = require("./db");
 const router = require("./Routes/index");
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://your-vercel-app-url.vercel.app",   // replace with actual Vercel URL after deployment
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 app.use(bodyparser.json({ limit: "50mb" }));
 app.use(bodyparser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.json());
