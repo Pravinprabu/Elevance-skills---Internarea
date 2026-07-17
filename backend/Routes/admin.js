@@ -6,6 +6,10 @@ const UAParser = require("ua-parser-js");
 const trackLogin = require("../utils/trackLogin");
 const AdminLoginOtp = require("../Model/AdminLoginOtp");
 const nodemailer = require("nodemailer");
+const ForgotPasswordOtp = require("../Model/ForgotPasswordOtp");
+const Application = require("../Model/Application");
+const Job = require("../Model/Job");
+const Internship = require("../Model/Internship");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -71,6 +75,124 @@ router.post("/adminregister", async (req, res) => {
     res.status(201).json({ success: true, user });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.post("/forgot-password/send-otp", async (req, res) => {
+  const { email } = req.body;
+  try {
+    // Check if admin account exists
+    const user = await User.findOne({ email, role: "admin" });
+    if (!user) return res.status(404).json({ error: "No admin account found with this email." });
+
+    // One per day rule
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const todayRequest = await ForgotPasswordOtp.findOne({
+      email,
+      usedAt: { $gte: startOfDay },
+    });
+    if (todayRequest) {
+      return res.status(429).json({ error: "You can use this option only once per day." });
+    }
+
+    // Generate and send OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await ForgotPasswordOtp.create({ email, otp, expiresAt });
+
+    await transporter.sendMail({
+      from: `"InternArea Admin" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Admin Password Reset OTP",
+      text: `Your OTP for password reset is: ${otp}. Valid for 10 minutes. If you did not request this, ignore this email.`,
+    });
+
+    res.status(200).json({ message: "OTP sent to your email." });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to send OTP." });
+  }
+});
+
+router.post("/forgot-password/verify-and-reset", async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    // Verify OTP
+    const record = await ForgotPasswordOtp.findOne({
+      email,
+      verified: false,
+    }).sort({ usedAt: -1 });
+
+    if (!record || record.expiresAt < new Date() || record.otp !== otp) {
+      return res.status(400).json({ error: "Incorrect or expired OTP." });
+    }
+
+    // Generate new password — uppercase + lowercase only, no numbers or special chars
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    let newPassword = "";
+    for (let i = 0; i < 12; i++) {
+      newPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    // Hash and save
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findOneAndUpdate({ email, role: "admin" }, { password: hashedPassword });
+
+    // Mark OTP as used
+    record.verified = true;
+    await record.save();
+
+    res.status(200).json({
+      success: true,
+      newPassword, // Send back to display on screen — admin must note this down
+      message: "Password reset successful.",
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to reset password." });
+  }
+});
+
+router.get("/stats", async (req, res) => {
+  try {
+    const totalApplications = await Application.countDocuments();
+    const activeJobs = await Job.countDocuments();
+    const activeInternships = await Internship.countDocuments();
+    const acceptedApplications = await Application.countDocuments({ status: "accepted" });
+
+    // Conversion rate = accepted / total * 100
+    const conversionRate = totalApplications > 0
+      ? ((acceptedApplications / totalApplications) * 100).toFixed(2)
+      : "0.00";
+
+    res.status(200).json({
+      totalApplications,
+      activeJobs,
+      activeInternships,
+      conversionRate: `${conversionRate}%`,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch stats" });
+  }
+});
+
+router.post("/change-password", async (req, res) => {
+  const { uid, currentPassword, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ uid, role: "admin" });
+    if (!user) return res.status(404).json({ error: "Admin not found" });
+
+    // Verify current password first
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) return res.status(401).json({ error: "Current password is incorrect" });
+
+    // Hash and save new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to change password" });
   }
 });
 
