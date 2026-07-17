@@ -140,19 +140,32 @@ export default function ResumeBuilder() {
 
   const downloadPDF = async () => {
     const element = document.getElementById("resume-preview");
-    if (!element) return;
+    if (!element) {
+      toast.error("Resume preview not found.");
+      return;
+    }
     try {
-      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      // Small delay to ensure DOM is fully rendered
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        windowWidth: 800,
+        windowHeight: 1130,
+      });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgProps = pdf.getImageProperties(imgData);
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${formData.name || 'Resume'}.pdf`);
-    } catch (e: any) {
-      console.error("PDF Generation Error:", e);
-      toast.error(`PDF Error: ${e?.message || e}`);
+      pdf.save(`${formData.name || "Resume"}.pdf`);
+    } catch (e) {
+      console.error("PDF error:", e);
+      toast.error("Failed to generate PDF.");
     }
   };
 
@@ -296,9 +309,16 @@ export default function ResumeBuilder() {
         </div>
       </div>
 
-      {/* Hidden PDF Preview Container */}
+      {/* Hidden PDF Preview Container — must use this exact positioning */}
       {step === 4 && (
-        <div style={{ position: "absolute", top: 0, left: 0, opacity: 0, zIndex: -9999, pointerEvents: "none" }}>
+        <div style={{
+          position: "fixed",
+          top: "-9999px",
+          left: "-9999px",
+          width: "800px",
+          overflow: "hidden",
+          zIndex: -1,
+        }}>
           <div id="resume-preview" className="p-10 w-[800px] min-h-[1130px] shadow-none font-sans" style={{ backgroundColor: "#ffffff", color: "#000000" }}>
             {/* Header Section */}
             <div className="flex items-center space-x-6 border-b-2 pb-6 mb-6" style={{ borderColor: "#d1d5db" }}>
