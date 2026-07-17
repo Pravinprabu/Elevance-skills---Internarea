@@ -9,25 +9,31 @@ const router = require("./Routes/index");
 const app = express();
 const port = process.env.PORT || 5000;
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://elevance-skills-internarea-1932-six.vercel.app",   // replace with actual Vercel URL after deployment
-  "https://elevance-skills-internarea.onrender.com"
-];
-
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // 1. Allow server-to-server requests or tools like Postman (where origin is undefined)
+    if (!origin) return callback(null, true);
+
+    // 2. Define safe check conditions
+    const isLocalhost = origin.startsWith("http://localhost");
+    const isVercelApp = origin.includes("vercel.app");
+    const isRenderApp = origin.includes("onrender.com");
+
+    // 3. If it matches any of your deployment environments, let it through!
+    if (isLocalhost || isVercelApp || isRenderApp) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+// Setup your body parsers cleanly
 app.use(bodyparser.json({ limit: "50mb" }));
 app.use(bodyparser.urlencoded({ extended: true, limit: "50mb" }));
-app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("hello this is internshala backend");
