@@ -39,6 +39,8 @@ router.post("/verify-otp", async (req, res) => {
   const { uid, otp } = req.body;
   try {
     const user = await User.findOne({ uid });
+    if (!user) return res.status(404).json({ error: "User not found" });
+    
     const record = await ResumeOtp.findOne({ email: user.email, verified: false }).sort({ createdAt: -1 });
     if (!record || record.expiresAt < new Date() || record.otp !== otp) {
       return res.status(400).json({ error: "Incorrect or expired OTP" });
@@ -85,6 +87,8 @@ router.post("/verify-payment", async (req, res) => {
 
     // Payment is valid — save the resume
     const user = await User.findOne({ uid });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
     const resume = new Resume({
       userId: user._id,
       ...resumeData,
