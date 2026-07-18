@@ -35,9 +35,9 @@ const Navbar = () => {
 
       dispatch(
         login({
-          uid: firebaseUser.uid,
-          name: firebaseUser.displayName,
-          email: firebaseUser.email,
+          uid: dbRes.data.uid || firebaseUser.uid,
+          name: dbRes.data.name || firebaseUser.displayName,
+          email: dbRes.data.email || firebaseUser.email,
           photo: firebaseUser.photoURL || dbRes.data.photo,
           role: dbRes.data.role,
           plan: dbRes.data.plan,
