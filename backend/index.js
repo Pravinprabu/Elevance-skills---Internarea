@@ -28,8 +28,18 @@ app.use(cors({
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  optionsSuccessStatus: 200 // Forces 200 OK for OPTIONS preflight instead of 204
 }));
+
+// Explicit catch-all handler for preflight OPTIONS requests across all routes
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
+  res.header("Access-Control-Allow-Credentials", "true");
+  return res.sendStatus(200);
+});
 
 // Setup your body parsers cleanly
 app.use(bodyparser.json({ limit: "50mb" }));
