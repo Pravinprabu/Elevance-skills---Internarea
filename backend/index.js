@@ -62,5 +62,18 @@ const startServer = async () => {
     console.log(err);
   }
 };
+// Add this right BEFORE startServer() in backend/index.js
+
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error("❌ GLOBAL ERROR TRAPPED ❌");
+  console.error("Error Message:", err.message);
+  console.error("Stack Trace:", err.stack);
+  
+  res.status(500).json({
+    error: "Internal Server Error",
+    details: err.message
+  });
+});
 
 startServer();
