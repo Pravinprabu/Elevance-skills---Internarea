@@ -1,72 +1,87 @@
 const express = require("express");
 const router = express.Router();
-const ResumeOtp = require("../Model/ResumeOtp");
+const axios = require("axios");
 const User = require("../Model/User");
+const ResumeOtp = require("../Model/ResumeOtp");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Resume = require("../Model/Resume");
-const nodemailer = require("nodemailer");
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { 
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS 
-  },
-});
-
+// POST: Send Resume OTP using EmailJS
 router.post("/send-otp", async (req, res) => {
   const { uid } = req.body;
-  
-  // Validation check to prevent crashes if frontend payload is missing uid
+
   if (!uid) {
-    return res.status(400).json({ error: "UID is required in the request body" });
+    return res.status(400).json({ error: "UID is required in request body" });
   }
 
   try {
     const user = await User.findOne({ uid });
     if (!user) return res.status(404).json({ error: "User not found" });
-    if (!user.email) return res.status(400).json({ error: "User does not have a valid email address attached" });
+    if (!user.email) return res.status(400).json({ error: "User email missing" });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins to match your template text
 
-    // Clean up older unused OTPs for this email to prevent index congestion
+    // Format readable time for template (e.g., "12:45 PM")
+    const formattedTime = expiresAt.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+
+    // Clear previous unverified OTPs
     await ResumeOtp.deleteMany({ email: user.email, verified: false });
-
     await ResumeOtp.create({ email: user.email, otp, expiresAt });
 
-    // CRITICAL FIX: Ensure sendMail is completely awaited to pass runtime exceptions to catch block
-    console.log(`[SMTP] Attempting to dispatch verification OTP to: ${user.email}`);
-    const mailInfo = await transporter.sendMail({
-      from: `"InternArea" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: "Resume Builder OTP Verification",
-      text: `Your OTP for resume creation is: ${otp}. Valid for 5 minutes.`,
-    });
-    console.log("[SMTP] Mail successfully dispatched. Response status:", mailInfo.response);
+    // Send email using EmailJS REST API
+    console.log(`[EmailJS] Dispatching OTP to ${user.email}...`);
 
-    res.status(200).json({ message: "OTP sent to your email" });
+    await axios.post(
+      "https://api.emailjs.com/api/v1.0/email/send",
+      {
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_PUBLIC_KEY,
+        accessToken: process.env.EMAILJS_PRIVATE_KEY,
+        template_params: {
+          email: user.email,        // Matches {{email}} in "To Email"
+          passcode: otp,           // Matches {{passcode}} in Content
+          time: formattedTime,     // Matches {{time}} in Content
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("[EmailJS] Resume OTP email sent successfully!");
+    return res.status(200).json({ message: "OTP sent to your email" });
+
   } catch (error) {
-    // Explicitly logs the error configuration (e.g., Auth failure, invalid app token) directly into Render logs
-    console.error("❌ ====== OTP ROUTE CRASH ERROR ====== ❌");
-    console.error("Error Message:", error.message);
-    console.error("Stack Trace:", error.stack);
-    
-    res.status(500).json({ error: "Failed to send OTP", details: error.message });
+    console.error("❌ ====== EMAILJS OTP ERROR ====== ❌");
+    console.error("Error Response:", error.response?.data || error.message);
+
+    return res.status(500).json({
+      error: "Failed to send OTP",
+      details: error.response?.data || error.message,
+    });
   }
 });
 
+// POST: Verify OTP
 router.post("/verify-otp", async (req, res) => {
   const { uid, otp } = req.body;
   try {
     const user = await User.findOne({ uid });
     if (!user) return res.status(404).json({ error: "User not found" });
-    
+
     const record = await ResumeOtp.findOne({ email: user.email, verified: false }).sort({ createdAt: -1 });
     if (!record || record.expiresAt < new Date() || record.otp !== otp) {
       return res.status(400).json({ error: "Incorrect or expired OTP" });
     }
+
     record.verified = true;
     await record.save();
     res.status(200).json({ verified: true });
@@ -75,6 +90,7 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
+// Other routes (create-order, verify-payment, get resume) remain as they are...
 router.post("/create-order", async (req, res) => {
   try {
     const razorpay = new Razorpay({
@@ -83,7 +99,7 @@ router.post("/create-order", async (req, res) => {
     });
 
     const order = await razorpay.orders.create({
-      amount: 5000,           // amount in paise — 5000 = ₹50
+      amount: 5000,
       currency: "INR",
       receipt: `resume_${Date.now()}`,
     });
@@ -96,7 +112,6 @@ router.post("/create-order", async (req, res) => {
 router.post("/verify-payment", async (req, res) => {
   const { uid, razorpay_order_id, razorpay_payment_id, razorpay_signature, resumeData } = req.body;
   try {
-    // Verify signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -107,7 +122,6 @@ router.post("/verify-payment", async (req, res) => {
       return res.status(400).json({ error: "Payment verification failed" });
     }
 
-    // Payment is valid — save the resume
     const user = await User.findOne({ uid });
     if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -118,10 +132,7 @@ router.post("/verify-payment", async (req, res) => {
     });
     await resume.save();
 
-    // Attach resume to user profile
     user.resume = resume._id;
-    
-    // Fixed plans configuration logic matching your tier rules updates
     user.plan = "premium";
     await user.save();
 
