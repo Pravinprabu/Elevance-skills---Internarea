@@ -14,7 +14,7 @@ router.post("/send-otp", async (req, res) => {
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Set expiry to 15 minutes from now (matches standard EmailJS templates)
+    // Set expiry to 15 minutes from now
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     // Format readable expiry time (e.g., "01:25 PM")
@@ -33,14 +33,14 @@ router.post("/send-otp", async (req, res) => {
       expiresAt,
     });
 
-    // Send email using EmailJS REST API
+    // Send email using EmailJS REST API (Using Common Template)
     console.log(`[EmailJS] Dispatching Language Change OTP to ${email}...`);
 
     await axios.post(
       "https://api.emailjs.com/api/v1.0/email/send",
       {
         service_id: process.env.EMAILJS_SERVICE_ID,
-        template_id: process.env.EMAILJS_LANGUAGE_TEMPLATE_ID || process.env.EMAILJS_TEMPLATE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID, // 👈 Common template ID
         user_id: process.env.EMAILJS_PUBLIC_KEY,
         accessToken: process.env.EMAILJS_PRIVATE_KEY,
         template_params: {
