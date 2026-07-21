@@ -5,16 +5,11 @@ const User = require("../Model/User");
 const UAParser = require("ua-parser-js");
 const trackLogin = require("../utils/trackLogin");
 const AdminLoginOtp = require("../Model/AdminLoginOtp");
-const nodemailer = require("nodemailer");
 const ForgotPasswordOtp = require("../Model/ForgotPasswordOtp");
 const Application = require("../Model/Application");
 const Job = require("../Model/Job");
 const Internship = require("../Model/Internship");
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-});
+const sendOTPemail = require("../utils/sendOTPemail"); // 👈 Central EmailJS Helper
 
 router.post("/adminlogin", async (req, res) => {
   const { email, password, otp } = req.body;
@@ -33,14 +28,15 @@ router.post("/adminlogin", async (req, res) => {
       if (!otp) {
         // First pass — generate and send OTP, don't log in yet
         const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins to align with common template
+
+        // Clear old unverified OTPs
+        await AdminLoginOtp.deleteMany({ email, verified: false });
         await AdminLoginOtp.create({ email, otp: generatedOtp, expiresAt });
-        await transporter.sendMail({
-          from: `"Internarea Admin" <${process.env.EMAIL_USER}>`,
-          to: email,
-          subject: "Admin Login OTP",
-          text: `Your OTP for admin login is: ${generatedOtp}. Valid for 2 minutes.`,
-        });
+
+        // Send OTP via EmailJS Helper
+        await sendOTPemail(email, generatedOtp, 15);
+
         return res.status(200).json({ otpRequired: true, message: "OTP sent to your email" });
       } else {
         // Second pass — verify OTP before completing login
@@ -60,6 +56,7 @@ router.post("/adminlogin", async (req, res) => {
 
     res.status(200).json({ success: true, user });
   } catch (error) {
+    console.error("Admin Login Error:", error.message);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -98,18 +95,18 @@ router.post("/forgot-password/send-otp", async (req, res) => {
 
     // Generate and send OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    // Clear previous unverified OTPs
+    await ForgotPasswordOtp.deleteMany({ email, verified: false });
     await ForgotPasswordOtp.create({ email, otp, expiresAt });
 
-    await transporter.sendMail({
-      from: `"InternArea Admin" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Admin Password Reset OTP",
-      text: `Your OTP for password reset is: ${otp}. Valid for 10 minutes. If you did not request this, ignore this email.`,
-    });
+    // Send OTP via EmailJS Helper
+    await sendOTPemail(email, otp, 15);
 
     res.status(200).json({ message: "OTP sent to your email." });
   } catch (error) {
+    console.error("Admin Forgot Password Error:", error.message);
     res.status(500).json({ error: "Failed to send OTP." });
   }
 });
@@ -197,3 +194,4 @@ router.post("/change-password", async (req, res) => {
 });
 
 module.exports = router;
+
