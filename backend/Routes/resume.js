@@ -21,32 +21,32 @@ router.post("/send-otp", async (req, res) => {
     if (!user.email) return res.status(400).json({ error: "User email missing" });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins to match your template text
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
 
-    // Format readable time for template (e.g., "12:45 PM")
+    // Format readable expiry time (e.g., "12:45 PM")
     const formattedTime = expiresAt.toLocaleTimeString([], { 
       hour: '2-digit', 
       minute: '2-digit' 
     });
 
-    // Clear previous unverified OTPs
+    // Clear previous unverified OTPs for this email
     await ResumeOtp.deleteMany({ email: user.email, verified: false });
     await ResumeOtp.create({ email: user.email, otp, expiresAt });
 
-    // Send email using EmailJS REST API
-    console.log(`[EmailJS] Dispatching OTP to ${user.email}...`);
+    // Send email using EmailJS REST API (Using Central Template)
+    console.log(`[EmailJS] Dispatching Resume OTP to ${user.email}...`);
 
     await axios.post(
       "https://api.emailjs.com/api/v1.0/email/send",
       {
         service_id: process.env.EMAILJS_SERVICE_ID,
-        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID, // 👈 Common template ID
         user_id: process.env.EMAILJS_PUBLIC_KEY,
         accessToken: process.env.EMAILJS_PRIVATE_KEY,
         template_params: {
-          email: user.email,        // Matches {{email}} in "To Email"
-          passcode: otp,           // Matches {{passcode}} in Content
-          time: formattedTime,     // Matches {{time}} in Content
+          email: user.email,        // Matches {{email}} in EmailJS template
+          passcode: otp,           // Matches {{passcode}} in EmailJS template
+          time: formattedTime,     // Matches {{time}} in EmailJS template
         },
       },
       {
@@ -56,11 +56,11 @@ router.post("/send-otp", async (req, res) => {
       }
     );
 
-    console.log("[EmailJS] Resume OTP email sent successfully!");
+    console.log(`[EmailJS] Resume OTP sent successfully to ${user.email}`);
     return res.status(200).json({ message: "OTP sent to your email" });
 
   } catch (error) {
-    console.error("❌ ====== EMAILJS OTP ERROR ====== ❌");
+    console.error("❌ ====== EMAILJS RESUME OTP ERROR ====== ❌");
     console.error("Error Response:", error.response?.data || error.message);
 
     return res.status(500).json({
@@ -90,7 +90,7 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-// Other routes (create-order, verify-payment, get resume) remain as they are...
+// POST: Create Razorpay Order
 router.post("/create-order", async (req, res) => {
   try {
     const razorpay = new Razorpay({
@@ -109,6 +109,7 @@ router.post("/create-order", async (req, res) => {
   }
 });
 
+// POST: Verify Payment & Save Resume
 router.post("/verify-payment", async (req, res) => {
   const { uid, razorpay_order_id, razorpay_payment_id, razorpay_signature, resumeData } = req.body;
   try {
@@ -142,6 +143,7 @@ router.post("/verify-payment", async (req, res) => {
   }
 });
 
+// GET: Fetch User Resume
 router.get("/:uid", async (req, res) => {
   try {
     const user = await User.findOne({ uid: req.params.uid });
