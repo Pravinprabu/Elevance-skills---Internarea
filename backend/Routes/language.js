@@ -1,16 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
+const axios = require("axios");
 const LanguageOtp = require("../Model/LanguageOtp");
-
-// Nodemailer transporter setup
-const transporter = nodemailer.createTransport({
-  service: "gmail", // You can use other services or host/port configs
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 router.post("/send-otp", async (req, res) => {
   const { email } = req.body;
@@ -23,39 +14,60 @@ router.post("/send-otp", async (req, res) => {
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Set expiry to 2 minutes from now
-    const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+    // Set expiry to 15 minutes from now (matches standard EmailJS templates)
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-    // Save to DB
+    // Format readable expiry time (e.g., "01:25 PM")
+    const formattedTime = expiresAt.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+
+    // Remove old unverified OTP records for this email
+    await LanguageOtp.deleteMany({ email, verified: false });
+
+    // Save new OTP to DB
     await LanguageOtp.create({
       email,
       otp,
       expiresAt,
     });
 
-    // Send email
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      console.log(`[MAILER] Preparing to send email to ${email} via ${process.env.EMAIL_USER}`);
-      try {
-        const info = await transporter.sendMail({
-          from: `"Internarea Support" <${process.env.EMAIL_USER}>`, 
-          to: email, // Recipient is dynamic
-          subject: "Your OTP for Language Change",
-          text: `Your OTP for changing the language to French is: ${otp}. It is valid for 2 minutes.`,
-        });
-        console.log(`[MAILER] Email sent successfully: ${info.messageId}`);
-      } catch (sendErr) {
-        console.error("[MAILER] Error during sendMail execution:", sendErr);
-        throw sendErr; // re-throw to be caught by the outer catch
-      }
-    } else {
-      console.log(`[DEV MODE] OTP for ${email}: ${otp}`);
-    }
+    // Send email using EmailJS REST API
+    console.log(`[EmailJS] Dispatching Language Change OTP to ${email}...`);
 
-    res.json({ success: true, message: "OTP sent successfully" });
+    await axios.post(
+      "https://api.emailjs.com/api/v1.0/email/send",
+      {
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_LANGUAGE_TEMPLATE_ID || process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_PUBLIC_KEY,
+        accessToken: process.env.EMAILJS_PRIVATE_KEY,
+        template_params: {
+          email: email,             // Matches {{email}} in EmailJS template
+          passcode: otp,            // Matches {{passcode}} in EmailJS template
+          time: formattedTime,      // Matches {{time}} in EmailJS template
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log(`[EmailJS] Language OTP sent successfully to ${email}`);
+    return res.json({ success: true, message: "OTP sent successfully" });
+
   } catch (error) {
-    console.error("Error sending OTP:", error);
-    res.status(500).json({ success: false, message: "Failed to send OTP" });
+    console.error("❌ ====== EMAILJS LANGUAGE OTP ERROR ====== ❌");
+    console.error("Error Response:", error.response?.data || error.message);
+
+    return res.status(500).json({ 
+      success: false, 
+      message: "Failed to send OTP",
+      details: error.response?.data || error.message 
+    });
   }
 });
 
