@@ -36,7 +36,10 @@ export async function getServerSideProps(context: any) {
     };
   } catch (error) {
     return {
-      notFound: true,
+      props: {
+        jobProp: null,
+        ...(await serverSideTranslations(locale || 'en', ['common'])),
+      },
     };
   }
 }
@@ -147,10 +150,12 @@ const index = ({ jobProp }: any) => {
   const router = useRouter();
   const { id } = router.query;
   const [jobdata, setjob] = useState<Job | null>(jobProp || null);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (!jobProp && id) {
       const fetchdata = async () => {
         try {
+          setLoading(true);
   
           //need to check the api link
           const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
@@ -158,6 +163,8 @@ const index = ({ jobProp }: any) => {
           setjob(res.data);
         } catch (error) {
           toast.error("Failed to load data");
+        } finally {
+          setLoading(false);
         }
       };
       fetchdata();
@@ -179,13 +186,22 @@ const index = ({ jobProp }: any) => {
     }
   }, [user]);
 
-  if (!jobdata) {
+  if (loading || (!jobdata && !jobProp && !loading && id === undefined)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
+
+  if (!jobdata && !loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-gray-600">Job not found</span>
+      </div>
+    );
+  }
+
   const handlesubmitapplication = async () => {
     if (!coverLetter.trim()) {
       toast.error("please write a cover letter");
