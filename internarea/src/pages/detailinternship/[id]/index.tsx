@@ -34,7 +34,10 @@ export async function getServerSideProps(context: any) {
     };
   } catch (error) {
     return {
-      notFound: true,
+      props: {
+        internshipProp: null,
+        ...(await serverSideTranslations(locale || 'en', ['common'])),
+      },
     };
   }
 }
@@ -101,17 +104,21 @@ const index = ({ internshipProp }: any) => {
   const router = useRouter();
   const { id } = router.query;
   const [internshipData,setinternship]=useState<Internship | null>(internshipProp || null)
+  const [loading, setLoading] = useState(false);
   useEffect(()=>{
     if (!internshipProp && id) {
       const fetchdata=async()=>{
   
         //need to check the api link
         try {
+          setLoading(true);
           const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
           const res=await axios.get(`${apiUrl}/api/internship/${id}`)     
           setinternship(res.data)
         } catch (error) {
           toast.error("Failed to load data");
+        } finally {
+          setLoading(false);
         }
       }
       fetchdata()
@@ -133,10 +140,18 @@ const index = ({ internshipProp }: any) => {
     }
   }, [user]);
 
-  if (!internshipData) {
+  if (loading || (!internshipData && !internshipProp && !loading && id === undefined)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!internshipData && !loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-gray-600">Internship not found</span>
       </div>
     );
   }

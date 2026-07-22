@@ -66,10 +66,17 @@ router.get("/", async (req, res) => {
 });
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
+  
+  // Validate if id is a valid ObjectId
+  const mongoose = require("mongoose");
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid application ID format" });
+  }
+
   try {
     const data = await application.findById(id);
     if (!data) {
-      res.status(404).json({ error: "application not found" });
+      return res.status(404).json({ error: "application not found" });
     }
     res.status(200).json(data);
   } catch (error) {

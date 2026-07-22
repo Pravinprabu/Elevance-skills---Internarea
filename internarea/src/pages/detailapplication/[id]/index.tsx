@@ -6,20 +6,36 @@ import { Application } from "../../../types";
 import { toast } from "react-toastify";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
-export async function getServerSideProps({ locale }: { locale: string }) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale || 'en', ['common'])),
-    },
-  };
+export async function getServerSideProps(context: any) {
+  const { locale, params } = context;
+  const { id } = params;
+
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+    const res = await axios.get(`${apiUrl}/api/application/${id}`);
+    
+    return {
+      props: {
+        applicationProp: res.data,
+        ...(await serverSideTranslations(locale || 'en', ['common'])),
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        applicationProp: null,
+        ...(await serverSideTranslations(locale || 'en', ['common'])),
+      },
+    };
+  }
 }
 
 
-const index = () => {
+const index = ({ applicationProp }: any) => {
   const router = useRouter();
   const { id } = router.query;
   const [loading, setloading] = useState(false);
-  const [data, setdata] = useState<Application | any>(null);
+  const [data, setdata] = useState<Application | any>(applicationProp || null);
   useEffect(() => {
     const fetchdata = async () => {
       try {
@@ -36,10 +52,10 @@ const index = () => {
         setloading(false);
       }
     };
-    if (id) {
+    if (!applicationProp && id) {
       fetchdata();
     }
-  }, [id]);
+  }, [id, applicationProp]);
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
