@@ -209,7 +209,7 @@ const index = ({ jobProp }: any) => {
     );
   }
 
-  if ((!jobdata && !loading) || error === "not_found") {
+  if (!jobdata || error === "not_found") {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <span className="text-gray-600 text-lg">Job not found</span>
@@ -218,6 +218,7 @@ const index = ({ jobProp }: any) => {
   }
 
   const handlesubmitapplication = async () => {
+    if (!jobdata) return;
     if (!coverLetter.trim()) {
       toast.error("please write a cover letter");
       return;
