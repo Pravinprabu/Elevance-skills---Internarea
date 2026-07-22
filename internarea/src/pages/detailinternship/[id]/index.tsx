@@ -18,12 +18,25 @@ import { Internship } from "../../../types";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
-export async function getServerSideProps({ locale }: { locale: string }) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale || 'en', ['common'])),
-    },
-  };
+export async function getServerSideProps(context: any) {
+  const { locale, params } = context;
+  const { id } = params;
+
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+    const res = await axios.get(`${apiUrl}/api/internship/${id}`);
+    
+    return {
+      props: {
+        internshipProp: res.data,
+        ...(await serverSideTranslations(locale || 'en', ['common'])),
+      },
+    };
+  } catch (error) {
+    return {
+      notFound: true,
+    };
+  }
 }
 
 // export const internships = [
@@ -83,24 +96,27 @@ export async function getServerSideProps({ locale }: { locale: string }) {
 //   },
 // ];
 
-const index = () => {
+const index = ({ internshipProp }: any) => {
   const { t } = useTranslation('common');
   const router = useRouter();
   const { id } = router.query;
-  const [internshipData,setinternship]=useState<Internship | null>(null)
+  const [internshipData,setinternship]=useState<Internship | null>(internshipProp || null)
   useEffect(()=>{
-    const fetchdata=async()=>{
-
-      //need to check the api link
-      try {
-        const res=await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/api/internship/${id}`)     
-        setinternship(res.data)
-      } catch (error) {
-        toast.error("Failed to load data");
+    if (!internshipProp && id) {
+      const fetchdata=async()=>{
+  
+        //need to check the api link
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+          const res=await axios.get(`${apiUrl}/api/internship/${id}`)     
+          setinternship(res.data)
+        } catch (error) {
+          toast.error("Failed to load data");
+        }
       }
+      fetchdata()
     }
-    fetchdata()
-  },[id])
+  },[id, internshipProp])
   const [availability, setAvailability] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
@@ -110,7 +126,8 @@ const index = () => {
 
   useEffect(() => {
     if (user?.uid && user.role === "jobseeker") {
-      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/subscription/status/${user.uid}`)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+      axios.get(`${apiUrl}/api/subscription/status/${user.uid}`)
         .then(res => setSubStatus(res.data))
         .catch(() => {});
     }
@@ -158,7 +175,8 @@ const index = () => {
         jobOwner: internshipData.postedBy,
         availability
       }
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/application`,applicationdata)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+      await axios.post(`${apiUrl}/api/application`,applicationdata)
       toast.success("Application submit successfully")
       router.push('/internship')
     } catch (error: any) {
