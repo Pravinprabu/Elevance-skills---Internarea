@@ -163,7 +163,7 @@ const index = ({ internshipProp }: any) => {
     );
   }
 
-  if ((!internshipData && !loading) || error === "not_found") {
+  if (!internshipData || error === "not_found") {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <span className="text-gray-600 text-lg">Internship not found</span>
@@ -171,6 +171,7 @@ const index = ({ internshipProp }: any) => {
     );
   }
   const handlesubmitapplication=async()=>{
+    if (!internshipData) return;
     if(!coverLetter.trim()){
       toast.error("please write a cover letter")
       return
