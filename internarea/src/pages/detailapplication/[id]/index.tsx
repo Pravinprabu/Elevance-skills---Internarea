@@ -35,19 +35,25 @@ const index = ({ applicationProp }: any) => {
   const router = useRouter();
   const { id } = router.query;
   const [loading, setloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [data, setdata] = useState<Application | any>(applicationProp || null);
   useEffect(() => {
     const fetchdata = async () => {
       try {
         setloading(true);
-
+        setError(null);
         //need to check the api link
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/application/${id}`
         );
         setdata(res.data);
-      } catch (error) {
-        toast.error("Failed to load application details");
+      } catch (error: any) {
+        if (error.response && error.response.status === 404) {
+          setError("not_found");
+        } else {
+          setError("network_error");
+          toast.error("Failed to load application details. The server might be waking up.");
+        }
       } finally {
         setloading(false);
       }
@@ -66,13 +72,31 @@ const index = ({ applicationProp }: any) => {
       </div>
     );
   }
-  if (!data && !loading) {
+  if (loading || (!data && !applicationProp && !loading && id === undefined && !error)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <span className="text-gray-600">Application not found</span>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
+
+  if (error === "network_error") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <span className="text-gray-600 text-lg mb-4">Failed to load application details. The server might be unavailable.</span>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Retry</button>
+      </div>
+    );
+  }
+
+  if ((!data && !loading) || error === "not_found") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-gray-600 text-lg">Application not found</span>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <section key={data._id} className="max-w-6xl mx-auto px-4">
