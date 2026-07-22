@@ -18,7 +18,7 @@ import { useSelector } from "react-redux";
 import { selectuser } from "@/Feature/Userslice";
 import { Job } from "../../../types";
 
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
 export async function getServerSideProps(context: any) {
   const { locale, params } = context;
@@ -336,7 +336,7 @@ const index = ({ jobProp }: any) => {
         {/* Internship Details Section */}
         <div className="p-6 border-b">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {t("About the Internship")}
+            {t("About the Job")}
           </h2>
           <p className="text-gray-600 mb-6">{jobdata.aboutJob}</p>
 

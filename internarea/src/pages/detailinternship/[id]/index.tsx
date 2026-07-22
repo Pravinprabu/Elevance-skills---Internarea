@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Internship } from "../../../types";
 
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
 export async function getServerSideProps(context: any) {
   const { locale, params } = context;

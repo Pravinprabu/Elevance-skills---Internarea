@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Application } from "../../../types";
 import { toast } from "react-toastify";
 
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 export async function getServerSideProps(context: any) {
   const { locale, params } = context;
   const { id } = params;
