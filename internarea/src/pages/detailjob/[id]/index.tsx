@@ -151,18 +151,24 @@ const index = ({ jobProp }: any) => {
   const { id } = router.query;
   const [jobdata, setjob] = useState<Job | null>(jobProp || null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!jobProp && id) {
       const fetchdata = async () => {
         try {
           setLoading(true);
-  
-          //need to check the api link
+          setError(null);
           const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
           const res = await axios.get(`${apiUrl}/api/job/${id}`);
           setjob(res.data);
-        } catch (error) {
-          toast.error("Failed to load data");
+        } catch (error: any) {
+          if (error.response && error.response.status === 404) {
+            setError("not_found");
+          } else {
+            setError("network_error");
+            toast.error("Failed to load data. The server might be waking up.");
+          }
         } finally {
           setLoading(false);
         }
@@ -186,7 +192,7 @@ const index = ({ jobProp }: any) => {
     }
   }, [user]);
 
-  if (loading || (!jobdata && !jobProp && !loading && id === undefined)) {
+  if (loading || (!jobdata && !jobProp && !loading && id === undefined && !error)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -194,10 +200,19 @@ const index = ({ jobProp }: any) => {
     );
   }
 
-  if (!jobdata && !loading) {
+  if (error === "network_error") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <span className="text-gray-600 text-lg mb-4">Failed to load job details. The server might be unavailable.</span>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Retry</button>
+      </div>
+    );
+  }
+
+  if ((!jobdata && !loading) || error === "not_found") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <span className="text-gray-600">Job not found</span>
+        <span className="text-gray-600 text-lg">Job not found</span>
       </div>
     );
   }

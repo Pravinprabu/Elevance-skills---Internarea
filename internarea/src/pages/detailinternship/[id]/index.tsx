@@ -97,33 +97,39 @@ export async function getServerSideProps(context: any) {
 //     AdditionalInfo: "A portfolio is required for application.",
 //     numberOfopning: "1",
 //   },
-// ];
-
 const index = ({ internshipProp }: any) => {
   const { t } = useTranslation('common');
   const router = useRouter();
   const { id } = router.query;
-  const [internshipData,setinternship]=useState<Internship | null>(internshipProp || null)
+  const [internshipData, setinternship] = useState<Internship | null>(
+    internshipProp || null
+  );
   const [loading, setLoading] = useState(false);
-  useEffect(()=>{
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
     if (!internshipProp && id) {
-      const fetchdata=async()=>{
-  
-        //need to check the api link
+      const fetchdata = async () => {
         try {
           setLoading(true);
+          setError(null);
           const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-          const res=await axios.get(`${apiUrl}/api/internship/${id}`)     
-          setinternship(res.data)
-        } catch (error) {
-          toast.error("Failed to load data");
+          const res = await axios.get(`${apiUrl}/api/internship/${id}`);
+          setinternship(res.data);
+        } catch (error: any) {
+          if (error.response && error.response.status === 404) {
+            setError("not_found");
+          } else {
+            setError("network_error");
+            toast.error("Failed to load data. The server might be waking up.");
+          }
         } finally {
           setLoading(false);
         }
-      }
-      fetchdata()
+      };
+      fetchdata();
     }
-  },[id, internshipProp])
+  }, [id, internshipProp]);
   const [availability, setAvailability] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
@@ -140,7 +146,7 @@ const index = ({ internshipProp }: any) => {
     }
   }, [user]);
 
-  if (loading || (!internshipData && !internshipProp && !loading && id === undefined)) {
+  if (loading || (!internshipData && !internshipProp && !loading && id === undefined && !error)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -148,10 +154,19 @@ const index = ({ internshipProp }: any) => {
     );
   }
 
-  if (!internshipData && !loading) {
+  if (error === "network_error") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <span className="text-gray-600 text-lg mb-4">Failed to load internship details. The server might be unavailable.</span>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Retry</button>
+      </div>
+    );
+  }
+
+  if ((!internshipData && !loading) || error === "not_found") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <span className="text-gray-600">Internship not found</span>
+        <span className="text-gray-600 text-lg">Internship not found</span>
       </div>
     );
   }
