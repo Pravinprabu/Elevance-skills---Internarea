@@ -20,12 +20,25 @@ import { Job } from "../../../types";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
-export async function getServerSideProps({ locale }: { locale: string }) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale || 'en', ['common'])),
-    },
-  };
+export async function getServerSideProps(context: any) {
+  const { locale, params } = context;
+  const { id } = params;
+
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+    const res = await axios.get(`${apiUrl}/api/job/${id}`);
+    
+    return {
+      props: {
+        jobProp: res.data,
+        ...(await serverSideTranslations(locale || 'en', ['common'])),
+      },
+    };
+  } catch (error) {
+    return {
+      notFound: true,
+    };
+  }
 }
 
 // const filteredJobs = [
@@ -128,25 +141,28 @@ export async function getServerSideProps({ locale }: { locale: string }) {
 //       numberOfopning: "1",
 //     },
 //   ];
-const index = () => {
+const index = ({ jobProp }: any) => {
   const { t } = useTranslation('common');
   const user=useSelector(selectuser)
   const router = useRouter();
   const { id } = router.query;
-  const [jobdata, setjob] = useState<Job | null>(null);
+  const [jobdata, setjob] = useState<Job | null>(jobProp || null);
   useEffect(() => {
-    const fetchdata = async () => {
-      try {
-
-        //need to check the api link
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/job/${id}`);
-        setjob(res.data);
-      } catch (error) {
-        toast.error("Failed to load data");
-      }
-    };
-    fetchdata();
-  }, [id]);
+    if (!jobProp && id) {
+      const fetchdata = async () => {
+        try {
+  
+          //need to check the api link
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+          const res = await axios.get(`${apiUrl}/api/job/${id}`);
+          setjob(res.data);
+        } catch (error) {
+          toast.error("Failed to load data");
+        }
+      };
+      fetchdata();
+    }
+  }, [id, jobProp]);
 
   const [availability, setAvailability] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -156,7 +172,8 @@ const index = () => {
 
   useEffect(() => {
     if (user?.uid && user.role === "jobseeker") {
-      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/subscription/status/${user.uid}`)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+      axios.get(`${apiUrl}/api/subscription/status/${user.uid}`)
         .then(res => setSubStatus(res.data))
         .catch(() => {});
     }
@@ -204,8 +221,9 @@ const index = () => {
         jobOwner: jobdata.postedBy,
         availability,
       };
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/application`,
+        `${apiUrl}/api/application`,
         applicationdata
       );
       toast.success("Application submit successfully");
