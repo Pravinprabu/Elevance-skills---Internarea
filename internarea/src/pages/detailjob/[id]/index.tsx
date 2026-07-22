@@ -20,39 +20,40 @@ import { Job } from "../../../types";
 
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: "blocking",
-  };
-}
-
-export async function getStaticProps(context: any) {
+export async function getServerSideProps(context: any) {
   const { locale, params } = context;
-  
+
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://elevance-skills-internarea.onrender.com";
     const res = await fetch(`${apiUrl.replace(/\/$/, "")}/api/job/${params.id}`);
-    
+
     if (!res.ok) {
-      return { notFound: true };
+      if (res.status === 404) {
+        return { notFound: true };
+      }
+      return {
+        props: {
+          jobProp: null,
+          ...(await serverSideTranslations(locale || "en", ["common"])),
+        },
+      };
     }
-    
+
     const data = await res.json();
-    if (!data || Object.keys(data).length === 0) {
-      return { notFound: true };
-    }
 
     return {
       props: {
         jobProp: data,
         ...(await serverSideTranslations(locale || "en", ["common"])),
       },
-      revalidate: 10,
     };
   } catch (err) {
-    console.error("Fetch error:", err);
-    return { notFound: true };
+    return {
+      props: {
+        jobProp: null,
+        ...(await serverSideTranslations(locale || "en", ["common"])),
+      },
+    };
   }
 }
 
