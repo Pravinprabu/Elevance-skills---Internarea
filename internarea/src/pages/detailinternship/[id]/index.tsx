@@ -32,8 +32,14 @@ export async function getStaticProps(context: any) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://elevance-skills-internarea.onrender.com";
     const baseUrl = apiUrl.replace(/\/$/, "");
     console.log(`Fetching from: ${baseUrl}/api/internship/${params.id}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
     
-    const res = await fetch(`${baseUrl}/api/internship/${params.id}`);
+    const res = await fetch(`${baseUrl}/api/internship/${params.id}`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       if (res.status === 404) {
@@ -127,7 +133,7 @@ const index = ({ internshipProp }: any) => {
   const [internshipData, setinternship] = useState<Internship | null>(
     internshipProp || null
   );
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!internshipProp);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
