@@ -21,8 +21,14 @@ export async function getStaticProps(context: any) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://elevance-skills-internarea.onrender.com";
     const baseUrl = apiUrl.replace(/\/$/, "");
     console.log(`Fetching from: ${baseUrl}/api/application/${id}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
     
-    const res = await fetch(`${baseUrl}/api/application/${id}`);
+    const res = await fetch(`${baseUrl}/api/application/${id}`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       if (res.status === 404) {
@@ -58,7 +64,7 @@ export async function getStaticProps(context: any) {
 const index = ({ applicationProp }: any) => {
   const router = useRouter();
   const { id } = router.query;
-  const [loading, setloading] = useState(false);
+  const [loading, setloading] = useState(!applicationProp);
   const [error, setError] = useState<string | null>(null);
   const [data, setdata] = useState<Application | any>(applicationProp || null);
   useEffect(() => {
@@ -66,10 +72,8 @@ const index = ({ applicationProp }: any) => {
       try {
         setloading(true);
         setError(null);
-        //need to check the api link
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/application/${id}`
-        );
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+        const res = await axios.get(`${apiUrl}/api/application/${id}`);
         setdata(res.data);
       } catch (error: any) {
         if (error.response && error.response.status === 404) {

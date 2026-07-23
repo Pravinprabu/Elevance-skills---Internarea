@@ -34,8 +34,14 @@ export async function getStaticProps(context: any) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://elevance-skills-internarea.onrender.com";
     const baseUrl = apiUrl.replace(/\/$/, "");
     console.log(`Fetching from: ${baseUrl}/api/job/${params.id}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
     
-    const res = await fetch(`${baseUrl}/api/job/${params.id}`);
+    const res = await fetch(`${baseUrl}/api/job/${params.id}`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       if (res.status === 404) {
@@ -173,7 +179,7 @@ const index = ({ jobProp }: any) => {
   const router = useRouter();
   const { id } = router.query;
   const [jobdata, setjob] = useState<Job | null>(jobProp || null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!jobProp);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
