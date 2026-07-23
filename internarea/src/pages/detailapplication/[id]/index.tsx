@@ -25,7 +25,15 @@ export async function getStaticProps(context: any) {
     const res = await fetch(`${baseUrl}/api/application/${id}`);
 
     if (!res.ok) {
-      return { notFound: true };
+      if (res.status === 404) {
+        return { notFound: true };
+      }
+      return {
+        props: {
+          applicationProp: null,
+          ...(await serverSideTranslations(locale || 'en', ['common'])),
+        },
+      };
     }
 
     const data = await res.json();
@@ -37,7 +45,12 @@ export async function getStaticProps(context: any) {
       },
     };
   } catch (error) {
-    return { notFound: true };
+    return {
+      props: {
+        applicationProp: null,
+        ...(await serverSideTranslations(locale || 'en', ['common'])),
+      },
+    };
   }
 }
 

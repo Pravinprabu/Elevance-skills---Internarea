@@ -38,7 +38,15 @@ export async function getStaticProps(context: any) {
     const res = await fetch(`${baseUrl}/api/job/${params.id}`);
 
     if (!res.ok) {
-      return { notFound: true };
+      if (res.status === 404) {
+        return { notFound: true };
+      }
+      return {
+        props: {
+          jobProp: null,
+          ...(await serverSideTranslations(locale || "en", ["common"])),
+        },
+      };
     }
 
     const data = await res.json();
@@ -50,7 +58,12 @@ export async function getStaticProps(context: any) {
       },
     };
   } catch (err) {
-    return { notFound: true };
+    return {
+      props: {
+        jobProp: null,
+        ...(await serverSideTranslations(locale || "en", ["common"])),
+      },
+    };
   }
 }
 
