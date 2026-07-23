@@ -26,7 +26,7 @@ export async function getStaticPaths() {
     fallback: "blocking",
   };
 }
-
+//w
 export async function getStaticProps(context: any) {
   const { locale, params } = context;
 

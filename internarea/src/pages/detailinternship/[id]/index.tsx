@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Internship } from "../../../types";
-
+//w
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
 export async function getStaticPaths() {

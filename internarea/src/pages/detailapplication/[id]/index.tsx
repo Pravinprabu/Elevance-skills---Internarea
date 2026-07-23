@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 export async function getStaticProps(context: any) {
   const { locale, params } = context;
   const { id } = params;
-
+//w
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://elevance-skills-internarea.onrender.com";
     const baseUrl = apiUrl.replace(/\/$/, "");
