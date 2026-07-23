@@ -5,28 +5,39 @@ import React, { useEffect, useState } from "react";
 import { Application } from "../../../types";
 import { toast } from "react-toastify";
 
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-export async function getServerSideProps(context: any) {
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+}
+
+export async function getStaticProps(context: any) {
   const { locale, params } = context;
   const { id } = params;
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-    const res = await axios.get(`${apiUrl}/api/application/${id}`);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://elevance-skills-internarea.onrender.com";
+    const baseUrl = apiUrl.replace(/\/$/, "");
+    console.log(`Fetching from: ${baseUrl}/api/application/${id}`);
     
+    const res = await fetch(`${baseUrl}/api/application/${id}`);
+
+    if (!res.ok) {
+      return { notFound: true };
+    }
+
+    const data = await res.json();
+
     return {
       props: {
-        applicationProp: res.data,
+        applicationProp: data,
         ...(await serverSideTranslations(locale || 'en', ['common'])),
       },
     };
   } catch (error) {
-    return {
-      props: {
-        applicationProp: null,
-        ...(await serverSideTranslations(locale || 'en', ['common'])),
-      },
-    };
+    return { notFound: true };
   }
 }
 

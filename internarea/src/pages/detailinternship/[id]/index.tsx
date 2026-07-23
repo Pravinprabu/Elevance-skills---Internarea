@@ -16,29 +16,27 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Internship } from "../../../types";
 
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
-export async function getServerSideProps(context: any) {
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+}
+
+export async function getStaticProps(context: any) {
   const { locale, params } = context;
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://elevance-skills-internarea.onrender.com";
-    const res = await fetch(`${apiUrl.replace(/\/$/, "")}/api/internship/${params.id}`);
+    const baseUrl = apiUrl.replace(/\/$/, "");
+    console.log(`Fetching from: ${baseUrl}/api/internship/${params.id}`);
+    
+    const res = await fetch(`${baseUrl}/api/internship/${params.id}`);
 
     if (!res.ok) {
-      // Only return notFound for a genuine 404 from the backend
-      // Do NOT return notFound for network/timeout errors
-      if (res.status === 404) {
-        return { notFound: true };
-      }
-      // For all other errors (500, timeout, sleeping server), 
-      // return empty props so the client-side fetch fallback takes over
-      return {
-        props: {
-          internshipProp: null,
-          ...(await serverSideTranslations(locale || "en", ["common"])),
-        },
-      };
+      return { notFound: true };
     }
 
     const data = await res.json();
@@ -50,15 +48,7 @@ export async function getServerSideProps(context: any) {
       },
     };
   } catch (err) {
-    // Network error (Render sleeping, timeout, etc.)
-    // Return null prop so the client-side useEffect fetch takes over
-    // DO NOT return { notFound: true } here
-    return {
-      props: {
-        internshipProp: null,
-        ...(await serverSideTranslations(locale || "en", ["common"])),
-      },
-    };
+    return { notFound: true };
   }
 }
 

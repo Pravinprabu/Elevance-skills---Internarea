@@ -18,25 +18,27 @@ import { useSelector } from "react-redux";
 import { selectuser } from "@/Feature/Userslice";
 import { Job } from "../../../types";
 
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
-export async function getServerSideProps(context: any) {
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+}
+
+export async function getStaticProps(context: any) {
   const { locale, params } = context;
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://elevance-skills-internarea.onrender.com";
-    const res = await fetch(`${apiUrl.replace(/\/$/, "")}/api/job/${params.id}`);
+    const baseUrl = apiUrl.replace(/\/$/, "");
+    console.log(`Fetching from: ${baseUrl}/api/job/${params.id}`);
+    
+    const res = await fetch(`${baseUrl}/api/job/${params.id}`);
 
     if (!res.ok) {
-      if (res.status === 404) {
-        return { notFound: true };
-      }
-      return {
-        props: {
-          jobProp: null,
-          ...(await serverSideTranslations(locale || "en", ["common"])),
-        },
-      };
+      return { notFound: true };
     }
 
     const data = await res.json();
@@ -48,12 +50,7 @@ export async function getServerSideProps(context: any) {
       },
     };
   } catch (err) {
-    return {
-      props: {
-        jobProp: null,
-        ...(await serverSideTranslations(locale || "en", ["common"])),
-      },
-    };
+    return { notFound: true };
   }
 }
 
