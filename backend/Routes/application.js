@@ -70,7 +70,7 @@ router.get("/:id", async (req, res) => {
   // Validate if id is a valid ObjectId
   const mongoose = require("mongoose");
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid application ID format" });
+    return res.status(404).json({ error: "Invalid application ID format" });
   }
 
   try {
