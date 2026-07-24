@@ -42,18 +42,13 @@ export async function getStaticProps(context: any) {
     clearTimeout(timeoutId);
 
     if (!res.ok) {
-      if (res.status === 404) {
-        return { notFound: true };
-      }
-      return {
-        props: {
-          internshipProp: null,
-          ...(await serverSideTranslations(locale || "en", ["common"])),
-        },
-      };
+      return { notFound: true };
     }
 
     const data = await res.json();
+    if (!data || Object.keys(data).length === 0) {
+      return { notFound: true };
+    }
 
     return {
       props: {
@@ -62,12 +57,7 @@ export async function getStaticProps(context: any) {
       },
     };
   } catch (err) {
-    return {
-      props: {
-        internshipProp: null,
-        ...(await serverSideTranslations(locale || "en", ["common"])),
-      },
-    };
+    return { notFound: true };
   }
 }
 
